@@ -1,4 +1,5 @@
 import { BuildingPowerChart } from "@/ui/distribution/building-power";
+import { BuiltPowerChart } from "@/ui/distribution/built-power";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -10,6 +11,9 @@ function Index() {
     <div className="p-6 flex flex-wrap gap-6">
       <div className="h-125 w-150">
         <BuildingPowerChart />
+      </div>
+      <div className="h-125 w-150">
+        <BuiltPowerChart />
       </div>
     </div>
   );
