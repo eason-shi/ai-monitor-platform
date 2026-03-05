@@ -1,5 +1,7 @@
 import { BuildingPowerChart } from "@/ui/distribution/building-power";
 import { BuiltPowerChart } from "@/ui/distribution/built-power";
+import { ChipShareChart } from "@/ui/distribution/chip-share";
+import { DistributionMap } from "@/ui/distribution/distribution-map";
 import { OperatorShareChart } from "@/ui/distribution/operator-share";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -18,6 +20,13 @@ function Index() {
       </div>
       <div className="h-125 w-150">
         <OperatorShareChart />
+      </div>
+      <div className="h-125 w-150">
+        <ChipShareChart />
+      </div>
+
+      <div className="h-200 w-300">
+        <DistributionMap />
       </div>
     </div>
   );

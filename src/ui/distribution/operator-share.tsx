@@ -7,8 +7,6 @@ const data = [
   { operator: "电信运营商", share: 24343 },
 ];
 
-const total = data.reduce((sum, item) => sum + item.share, 0);
-
 const colorMap: Record<string, [string, string]> = {
   云服务商: ["#4facfe", "#00f2fe"],
   政府投资的当地运营公司: ["#a18cd1", "#fbc2eb"],
@@ -54,7 +52,7 @@ export function OperatorShareChart() {
               value: number;
               percent: number;
             }) =>
-              `{name|${params.name}}: {value|${params.value}} ({percent|${params.percent}%})`,
+              `{name|${params.name}}\n{value|${params.value}} ({percent|${params.percent}%})`,
             rich: {
               name: { fontWeight: "bold", fontSize: 13, color: "#333" },
               value: { fontSize: 12, color: "#666" },
