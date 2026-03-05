@@ -38,6 +38,9 @@ dist-ssr
 .vite
 .turbo
 
+# Worktrees
+.worktrees
+
 # Testing
 coverage
 
@@ -47,3 +50,5 @@ Thumbs.db
 # Lock files (if using npm exclusively)
 # yarn.lock
 # pnpm-lock.yaml
+
+docs/
