@@ -6,12 +6,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="p-4">
-      <h3 className="text-2xl font-bold">Home Page</h3>
-      <p className="mt-4 text-gray-600">
-        Welcome to the AI Monitor Platform. This is a modern React application
-        built with Vite, TypeScript, Tailwind CSS, and TanStack Router.
-      </p>
+    <div className="p-4 text-center">
+      <h3 className="text-2xl font-bold">人工智能产业发展监测大屏</h3>
     </div>
   );
 }
