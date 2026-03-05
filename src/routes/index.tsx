@@ -1,3 +1,4 @@
+import { BuildingPowerChart } from "@/ui/distribution/building-power";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -6,8 +7,10 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="p-4 text-center">
-      <h3 className="text-2xl font-bold">人工智能产业发展监测大屏</h3>
+    <div className="p-6 flex flex-wrap gap-6">
+      <div className="h-125 w-150">
+        <BuildingPowerChart />
+      </div>
     </div>
   );
 }
