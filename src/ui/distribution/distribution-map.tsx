@@ -121,7 +121,15 @@ export function DistributionMap() {
     };
   }, [ready]);
 
-  return <div ref={chartRef} className="w-full h-full" />;
+  return (
+    <div className="relative w-full h-full">
+      <img
+        src="/earth-background.png"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div ref={chartRef} className="absolute inset-0 w-full h-full" />
+    </div>
+  );
 }
 
 const chipColorMap: Record<string, string> = {

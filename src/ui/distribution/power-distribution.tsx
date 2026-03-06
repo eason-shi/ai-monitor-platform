@@ -9,7 +9,7 @@ import { data } from "./computing-center-data";
 
 export function PowerDistribution() {
   return (
-    <div className="w-full h-full flex gap-3 p-3">
+    <div className="w-full h-full flex gap-3 p-3 pt-20">
       <div className="w-[22%] flex flex-col gap-3 overflow-hidden">
         <div className="flex-1 min-h-0">
           <WidgetContainer title="已建算力">
