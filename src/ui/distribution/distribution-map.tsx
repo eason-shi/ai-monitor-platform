@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
-import {
-  aggregateByProvince,
-  data,
-  type ComputingCenter,
-} from "./computing-center-data";
+import { aggregateByProvince, data } from "./computing-center-data";
 
 export function DistributionMap() {
   const chartRef = useRef<HTMLDivElement>(null);
@@ -32,8 +28,6 @@ export function DistributionMap() {
     instanceRef.current = chart;
 
     const provinceData = aggregateByProvince(data);
-    const allCenters = data.flatMap((g) => g.centers);
-    const scatterData = buildScatterData(allCenters);
 
     const provincesWithData = new Set(data.map((g) => g.province));
     const mapData = provinceData.map((d) => ({
@@ -95,17 +89,6 @@ export function DistributionMap() {
           geoIndex: 0,
           data: mapData,
         },
-        {
-          type: "effectScatter",
-          coordinateSystem: "geo",
-          data: scatterData,
-          symbolSize: (val: number[]) => Math.max(6, Math.sqrt(val[2]) * 0.6),
-          rippleEffect: {
-            brushType: "stroke",
-            scale: 3,
-            period: 4,
-          },
-        },
       ],
       animationDuration: 1500,
       animationEasing: "cubicOut",
@@ -130,29 +113,4 @@ export function DistributionMap() {
       <div ref={chartRef} className="absolute inset-0 w-full h-full" />
     </div>
   );
-}
-
-const chipColorMap: Record<string, string> = {
-  "英伟达 H100": "#76B900",
-  "英伟达 A100": "#00C9A7",
-  华为昇腾910: "#E63946",
-  寒武纪MLU370: "#F4A261",
-};
-
-function buildScatterData(centers: ComputingCenter[]) {
-  return centers.map((c) => {
-    const color = chipColorMap[c.chipType] || "#f39c12";
-    return {
-      name: c.name,
-      value: [c.longitude, c.latitude, c.chipCount],
-      province: c.province,
-      district: c.district,
-      chipType: c.chipType,
-      itemStyle: {
-        color,
-        shadowBlur: 10,
-        shadowColor: `${color}80`,
-      },
-    };
-  });
 }
