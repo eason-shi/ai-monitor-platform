@@ -30,12 +30,21 @@ export function DistributionMap() {
     const provinceData = aggregateByProvince(data);
 
     const provincesWithData = new Set(data.map((g) => g.province));
-    const mapData = provinceData.map((d) => ({
-      ...d,
-      itemStyle: {
-        areaColor: provincesWithData.has(d.name) ? "#1a3355" : "#132039",
-      },
-    }));
+
+    const highlightProvinceData = provinceData
+      .filter((d) => provincesWithData.has(d.name))
+      .map((d) => ({
+        name: d.name,
+        value: d.value,
+      }));
+
+    const COLORS = {
+      glow: "rgba(6, 182, 212, 0.6)",
+      border: "rgba(6, 182, 212, 0.8)",
+      fill: "rgba(19, 32, 57, 0.8)",
+      highlight: "rgba(26, 51, 85, 0.9)",
+      topBorder: "rgba(186, 230, 253, 0.4)",
+    };
 
     chart.setOption({
       tooltip: {
@@ -65,31 +74,68 @@ export function DistributionMap() {
           return "";
         },
       },
-      geo: {
-        map: "china",
-        roam: false,
-        zoom: 1.2,
-        itemStyle: {
-          areaColor: "#132039",
-          borderColor: "rgba(100, 180, 255, 0.25)",
-          borderWidth: 1,
-        },
-        emphasis: {
+      geo: [
+        {
+          map: "china",
+          roam: false,
+          zoom: 1.2,
+          zlevel: 0,
+          silent: true,
           itemStyle: {
-            areaColor: "#1e3a5f",
+            areaColor: "transparent",
+            borderColor: COLORS.border,
+            borderWidth: 3,
+            shadowColor: COLORS.glow,
+            shadowBlur: 30,
+          },
+        },
+        {
+          map: "china",
+          roam: false,
+          zoom: 1.2,
+          zlevel: 1,
+          silent: true,
+          itemStyle: {
+            areaColor: COLORS.fill,
+            borderColor: "rgba(100, 180, 255, 0.2)",
+            borderWidth: 1,
+          },
+        },
+        {
+          map: "china",
+          roam: false,
+          zoom: 1.2,
+          zlevel: 2,
+          silent: true,
+          data: highlightProvinceData,
+          itemStyle: {
+            areaColor: COLORS.highlight,
+            borderColor: COLORS.border,
+            borderWidth: 2,
+            shadowColor: COLORS.glow,
+            shadowBlur: 15,
+          },
+        },
+        {
+          map: "china",
+          roam: false,
+          zoom: 1.2,
+          zlevel: 3,
+          itemStyle: {
+            areaColor: "transparent",
+            borderColor: COLORS.topBorder,
+            borderWidth: 1,
+          },
+          emphasis: {
+            itemStyle: {
+              areaColor: "rgba(30, 58, 95, 0.9)",
+            },
+            label: { show: false },
           },
           label: { show: false },
         },
-        label: { show: false },
-      },
-      series: [
-        {
-          type: "map",
-          map: "china",
-          geoIndex: 0,
-          data: mapData,
-        },
       ],
+      series: [],
       animationDuration: 1500,
       animationEasing: "cubicOut",
     });
