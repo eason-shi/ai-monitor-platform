@@ -10,24 +10,5 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  return (
-    <div className="p-6 flex flex-wrap gap-6">
-      <div className="h-125 w-150">
-        <BuildingPowerChart />
-      </div>
-      <div className="h-125 w-150">
-        <BuiltPowerChart />
-      </div>
-      <div className="h-125 w-150">
-        <OperatorShareChart />
-      </div>
-      <div className="h-125 w-150">
-        <ChipShareChart />
-      </div>
-
-      <div className="h-200 w-300">
-        <DistributionMap />
-      </div>
-    </div>
-  );
+  return <div className="p-6 flex flex-wrap gap-6"></div>;
 }

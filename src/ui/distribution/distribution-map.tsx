@@ -336,8 +336,8 @@ function aggregateByProvince(centers: ComputingCenter[]) {
 const chipColorMap: Record<string, string> = {
   "英伟达 H100": "#76B900",
   "英伟达 A100": "#00C9A7",
-  "华为昇腾910": "#E63946",
-  "寒武纪MLU370": "#F4A261",
+  华为昇腾910: "#E63946",
+  寒武纪MLU370: "#F4A261",
 };
 
 function buildScatterData(centers: ComputingCenter[]) {
@@ -400,7 +400,18 @@ export function DistributionMap() {
         backgroundColor: "rgba(13, 27, 42, 0.9)",
         borderColor: "rgba(100, 180, 255, 0.3)",
         textStyle: { color: "#e0e6ed" },
-        formatter: (params: { seriesType: string; name: string; value: number; data: { name: string; province: string; district: string; chipType: string; value: number[] } }) => {
+        formatter: (params: {
+          seriesType: string;
+          name: string;
+          value: number;
+          data: {
+            name: string;
+            province: string;
+            district: string;
+            chipType: string;
+            value: number[];
+          };
+        }) => {
           if (params.seriesType === "effectScatter") {
             const d = params.data;
             return `<b>${d.name}</b><br/>${d.province} · ${d.district}<br/>芯片类型：${d.chipType}<br/>芯片数量：${d.value[2]}`;
