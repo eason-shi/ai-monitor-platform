@@ -4,6 +4,8 @@ import { BuiltPowerChart } from "./built-power";
 import { OperatorShareChart } from "./operator-share";
 import { ChipShareChart } from "./chip-share";
 import { BuildingPowerChart } from "./building-power";
+import { DataCenterList } from "./data-center-list";
+import { data } from "./computing-center-data";
 
 export function PowerDistribution() {
   return (
@@ -38,7 +40,9 @@ export function PowerDistribution() {
         <DistributionMap />
       </div>
 
-      <div className="w-[22%]"></div>
+      <div className="w-[22%]">
+        <DataCenterList group={data[0]} />
+      </div>
     </div>
   );
 }
