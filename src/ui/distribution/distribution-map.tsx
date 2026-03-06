@@ -32,9 +32,10 @@ export function DistributionMap() {
     instanceRef.current = chart;
 
     const provinceData = aggregateByProvince(data);
-    const scatterData = buildScatterData(data);
+    const allCenters = data.flatMap((g) => g.centers);
+    const scatterData = buildScatterData(allCenters);
 
-    const provincesWithData = new Set(data.map((c) => c.province));
+    const provincesWithData = new Set(data.map((g) => g.province));
     const mapData = provinceData.map((d) => ({
       ...d,
       itemStyle: {
