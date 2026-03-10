@@ -1,11 +1,11 @@
 import { WidgetContainer } from "../widget/widget-container";
-import { DistributionMap } from "./distribution-map";
 import { BuiltPowerChart } from "./built-power";
 import { OperatorShareChart } from "./operator-share";
 import { ChipShareChart } from "./chip-share";
 import { BuildingPowerChart } from "./building-power";
 import { DataCenterList } from "./data-center-list";
 import { data } from "./computing-center-data";
+import { EchartsMap } from "./echarts-map";
 
 export function PowerDistribution() {
   return (
@@ -37,7 +37,7 @@ export function PowerDistribution() {
       </div>
 
       <div className="w-[56%]">
-        <DistributionMap />
+        <EchartsMap />
       </div>
 
       <div className="w-[22%]">
