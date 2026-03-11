@@ -52,5 +52,3 @@ Thumbs.db
 # pnpm-lock.yaml
 
 docs/
-
-*.glb

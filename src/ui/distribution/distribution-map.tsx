@@ -6,6 +6,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export function DistributionMap() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -15,11 +16,16 @@ export function DistributionMap() {
 
     const { clientWidth: width, clientHeight: height } = container;
 
-    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 200);
-    camera.position.set(0, 13.2, 7.2);
+    const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 200);
+    camera.position.set(0, 28, 16);
     camera.lookAt(0, 0, -1);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      preserveDrawingBuffer: true,
+    });
+    rendererRef.current = renderer;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.8;
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -115,9 +121,39 @@ export function DistributionMap() {
     };
   }, []);
 
+  const handleDownload = () => {
+    const renderer = rendererRef.current;
+    if (!renderer) return;
+    const url = renderer.domElement.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "distribution-map.png";
+    a.click();
+  };
+
   return (
     <div className="relative w-full h-full">
       <div ref={containerRef} className="absolute inset-0 w-full h-full" />
+      <button
+        onClick={handleDownload}
+        className="absolute right-4 bottom-4 z-10 rounded-full bg-white/80 p-2 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      </button>
     </div>
   );
 }
