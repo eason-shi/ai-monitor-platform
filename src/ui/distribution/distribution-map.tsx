@@ -3,10 +3,6 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
-import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
 export function DistributionMap() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -34,20 +30,10 @@ export function DistributionMap() {
     const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
     dirLight.position.set(10, -10, 20);
     scene.add(dirLight);
+
     const fillLight = new THREE.DirectionalLight(0x4488cc, 0.5);
     fillLight.position.set(-10, 10, 5);
     scene.add(fillLight);
-
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-    const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(width, height),
-      0.3,
-      0.3,
-      0.2,
-    );
-    composer.addPass(bloomPass);
-    composer.addPass(new OutputPass());
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0, -1);
@@ -67,33 +53,12 @@ export function DistributionMap() {
     gltfLoader.setDRACOLoader(dracoLoader);
 
     let mixer: THREE.AnimationMixer | null = null;
-    const emissiveMeshes: THREE.Mesh[] = [];
 
     gltfLoader.load(
       "/china.glb",
       (gltf) => {
         const model = gltf.scene;
-        model.traverse((node) => {
-          node.frustumCulled = false;
-          if (node instanceof THREE.Mesh) {
-            if (node.material) {
-              if (Array.isArray(node.material)) {
-                node.material.forEach((m) => { m.side = THREE.DoubleSide; });
-              } else {
-                node.material.side = THREE.DoubleSide;
-              }
-            }
-            if (
-              node.material instanceof THREE.MeshStandardMaterial &&
-              node.material.emissive &&
-              node.material.emissiveIntensity > 0
-            ) {
-              emissiveMeshes.push(node);
-            }
-          }
-        });
         scene.add(model);
-
         if (gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(model);
           const action = mixer.clipAction(gltf.animations[0]);
@@ -106,25 +71,20 @@ export function DistributionMap() {
       },
     );
 
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
     let animationId: number;
 
-    const animate = () => {
+    const animate = (timestamp: number) => {
       animationId = requestAnimationFrame(animate);
-      const delta = clock.getDelta();
-      const elapsed = clock.getElapsedTime();
+      timer.update(timestamp);
+      const delta = timer.getDelta();
 
       mixer?.update(delta);
-
-      for (const mesh of emissiveMeshes) {
-        const mat = mesh.material as THREE.MeshStandardMaterial;
-        mat.emissiveIntensity = 0.8 + 0.4 * Math.sin(elapsed * 1.5);
-      }
 
       controls.update();
       renderer.render(scene, camera);
     };
-    animate();
+    animate(performance.now());
 
     const resizeObserver = new ResizeObserver(([entry]) => {
       const { width: w, height: h } = entry.contentRect;
@@ -132,7 +92,6 @@ export function DistributionMap() {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-      composer.setSize(w, h);
     });
     resizeObserver.observe(container);
 
@@ -152,7 +111,6 @@ export function DistributionMap() {
         }
       });
       renderer.dispose();
-      composer.dispose();
       container.removeChild(renderer.domElement);
     };
   }, []);
