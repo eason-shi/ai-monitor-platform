@@ -3,6 +3,13 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { data } from "./computing-center-data";
+
+const provinceChipMap = new Map<string, number>();
+for (const group of data) {
+  const total = group.centers.reduce((sum, c) => sum + c.chipCount, 0);
+  provinceChipMap.set(group.province, total);
+}
 
 export function DistributionMap() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -59,6 +66,7 @@ export function DistributionMap() {
     gltfLoader.setDRACOLoader(dracoLoader);
 
     let mixer: THREE.AnimationMixer | null = null;
+    const dataPoints: THREE.Mesh[] = [];
 
     gltfLoader.load(
       "/china.glb",
@@ -69,6 +77,30 @@ export function DistributionMap() {
           mixer = new THREE.AnimationMixer(model);
           const action = mixer.clipAction(gltf.animations[0]);
           action.play();
+        }
+
+        const provinceGroups = gltf.scene.children[1]?.children ?? [];
+        const maxChips = Math.max(...provinceChipMap.values());
+
+        for (const child of provinceGroups) {
+          const chips = provinceChipMap.get(child.name);
+          if (chips == null) continue;
+
+          const worldPos = new THREE.Vector3();
+          child.getWorldPosition(worldPos);
+
+          const radius = 0.15 + (chips / maxChips) * 0.35;
+          const geo = new THREE.SphereGeometry(radius, 16, 16);
+          const mat = new THREE.MeshBasicMaterial({
+            color: 0x00d4ff,
+            transparent: true,
+            opacity: 0.85,
+          });
+          const sphere = new THREE.Mesh(geo, mat);
+          sphere.position.copy(worldPos);
+          sphere.position.y += 0.6;
+          scene.add(sphere);
+          dataPoints.push(sphere);
         }
       },
       undefined,
@@ -86,6 +118,13 @@ export function DistributionMap() {
       const delta = timer.getDelta();
 
       mixer?.update(delta);
+
+      const pulse = 0.9 + 0.2 * Math.sin(timestamp * 0.003);
+      for (const pt of dataPoints) {
+        pt.scale.setScalar(pulse);
+        (pt.material as THREE.MeshBasicMaterial).opacity =
+          0.6 + 0.25 * Math.sin(timestamp * 0.003);
+      }
 
       controls.update();
       renderer.render(scene, camera);
