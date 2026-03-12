@@ -3,54 +3,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { data } from "./computing-center-data";
-
-const GLB_DB_NAME = "glb-cache";
-const GLB_STORE_NAME = "models";
-const GLB_CACHE_KEY = "china.glb";
-const GLB_URL = "https://pub-bc5962af312445caa5258b02a060440b.r2.dev/china.glb";
-
-function openGlbDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(GLB_DB_NAME, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(GLB_STORE_NAME);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-async function getCachedGlb(): Promise<ArrayBuffer | null> {
-  const db = await openGlbDB();
-  return new Promise((resolve) => {
-    const tx = db.transaction(GLB_STORE_NAME, "readonly");
-    const req = tx.objectStore(GLB_STORE_NAME).get(GLB_CACHE_KEY);
-    req.onsuccess = () => resolve(req.result ?? null);
-    req.onerror = () => resolve(null);
-  });
-}
-
-async function cacheGlb(data: ArrayBuffer): Promise<void> {
-  const db = await openGlbDB();
-  const tx = db.transaction(GLB_STORE_NAME, "readwrite");
-  tx.objectStore(GLB_STORE_NAME).put(data, GLB_CACHE_KEY);
-}
-
-async function loadGlbModel(loader: GLTFLoader): Promise<GLTF> {
-  const cached = await getCachedGlb();
-  if (cached) {
-    return new Promise((resolve, reject) => {
-      loader.parse(cached, "", resolve, reject);
-    });
-  }
-
-  const res = await fetch(GLB_URL);
-  const buffer = await res.arrayBuffer();
-  await cacheGlb(buffer);
-  return new Promise((resolve, reject) => {
-    loader.parse(buffer, "", resolve, reject);
-  });
-}
+import { loadGlbModel } from "./glb-loader";
 
 const provinceChipMap = new Map<string, number>();
 for (const group of data) {
@@ -60,7 +14,6 @@ for (const group of data) {
 
 export function DistributionMap() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -77,9 +30,7 @@ export function DistributionMap() {
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: true,
-      preserveDrawingBuffer: true,
     });
-    rendererRef.current = renderer;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.8;
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -205,39 +156,5 @@ export function DistributionMap() {
     };
   }, []);
 
-  const handleDownload = () => {
-    const renderer = rendererRef.current;
-    if (!renderer) return;
-    const url = renderer.domElement.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "distribution-map.png";
-    a.click();
-  };
-
-  return (
-    <div className="relative w-full h-full">
-      <div ref={containerRef} className="absolute inset-0 w-full h-full" />
-      <button
-        onClick={handleDownload}
-        className="absolute right-4 bottom-4 z-10 rounded-full bg-white/80 p-2 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-      </button>
-    </div>
-  );
+  return <div ref={containerRef} className="w-full h-full" />;
 }
