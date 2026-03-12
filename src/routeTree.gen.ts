@@ -18,9 +18,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeployDistrivutionRoute = DeployDistrivutionRouteImport.update({
-  id: '/distrivution',
-  path: '/distrivution',
-  getParentRoute: () => DeployRoute,
+  id: '/deploy/distrivution',
+  path: '/deploy/distrivution',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -46,6 +46,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DeployDistrivutionRoute: typeof DeployDistrivutionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -59,16 +60,17 @@ declare module '@tanstack/react-router' {
     }
     '/deploy/distrivution': {
       id: '/deploy/distrivution'
-      path: '/distrivution'
+      path: '/deploy/distrivution'
       fullPath: '/deploy/distrivution'
       preLoaderRoute: typeof DeployDistrivutionRouteImport
-      parentRoute: typeof DeployRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DeployDistrivutionRoute: DeployDistrivutionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

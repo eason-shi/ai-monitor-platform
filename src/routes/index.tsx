@@ -17,6 +17,7 @@ function Index() {
 
     const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
+      console.log(width, height);
       const s = Math.min(width / 3200, height / 1800);
       setScale(s);
       setOffset({
