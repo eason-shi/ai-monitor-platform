@@ -71,8 +71,11 @@ export function DistributionMap() {
     gltfLoader.load(
       "/china.glb",
       (gltf) => {
+        console.log(gltf);
+
         const model = gltf.scene;
         scene.add(model);
+
         if (gltf.animations.length > 0) {
           mixer = new THREE.AnimationMixer(model);
           const action = mixer.clipAction(gltf.animations[0]);
