@@ -9,64 +9,47 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AdaptiveRouteImport } from './routes/adaptive'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdaptiveDistrivutionRouteImport } from './routes/adaptive/distrivution'
+import { Route as DeployDistrivutionRouteImport } from './routes/deploy/distrivution'
 
-const AdaptiveRoute = AdaptiveRouteImport.update({
-  id: '/adaptive',
-  path: '/adaptive',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdaptiveDistrivutionRoute = AdaptiveDistrivutionRouteImport.update({
+const DeployDistrivutionRoute = DeployDistrivutionRouteImport.update({
   id: '/distrivution',
   path: '/distrivution',
-  getParentRoute: () => AdaptiveRoute,
+  getParentRoute: () => DeployRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/adaptive': typeof AdaptiveRouteWithChildren
-  '/adaptive/distrivution': typeof AdaptiveDistrivutionRoute
+  '/deploy/distrivution': typeof DeployDistrivutionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/adaptive': typeof AdaptiveRouteWithChildren
-  '/adaptive/distrivution': typeof AdaptiveDistrivutionRoute
+  '/deploy/distrivution': typeof DeployDistrivutionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/adaptive': typeof AdaptiveRouteWithChildren
-  '/adaptive/distrivution': typeof AdaptiveDistrivutionRoute
+  '/deploy/distrivution': typeof DeployDistrivutionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/adaptive' | '/adaptive/distrivution'
+  fullPaths: '/' | '/deploy/distrivution'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/adaptive' | '/adaptive/distrivution'
-  id: '__root__' | '/' | '/adaptive' | '/adaptive/distrivution'
+  to: '/' | '/deploy/distrivution'
+  id: '__root__' | '/' | '/deploy/distrivution'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdaptiveRoute: typeof AdaptiveRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/adaptive': {
-      id: '/adaptive'
-      path: '/adaptive'
-      fullPath: '/adaptive'
-      preLoaderRoute: typeof AdaptiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -74,31 +57,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/adaptive/distrivution': {
-      id: '/adaptive/distrivution'
+    '/deploy/distrivution': {
+      id: '/deploy/distrivution'
       path: '/distrivution'
-      fullPath: '/adaptive/distrivution'
-      preLoaderRoute: typeof AdaptiveDistrivutionRouteImport
-      parentRoute: typeof AdaptiveRoute
+      fullPath: '/deploy/distrivution'
+      preLoaderRoute: typeof DeployDistrivutionRouteImport
+      parentRoute: typeof DeployRoute
     }
   }
 }
 
-interface AdaptiveRouteChildren {
-  AdaptiveDistrivutionRoute: typeof AdaptiveDistrivutionRoute
-}
-
-const AdaptiveRouteChildren: AdaptiveRouteChildren = {
-  AdaptiveDistrivutionRoute: AdaptiveDistrivutionRoute,
-}
-
-const AdaptiveRouteWithChildren = AdaptiveRoute._addFileChildren(
-  AdaptiveRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdaptiveRoute: AdaptiveRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
