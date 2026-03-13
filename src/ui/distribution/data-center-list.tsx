@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import * as echarts from "echarts";
+import { useMemo, useState } from "react";
 import type { ComputingCenter, ProvinceGroup } from "./computing-center-data";
+import { EchartsWidget } from "@/ui/echarts-widget";
 
 const palette = [
   "#C0392B",
@@ -84,17 +84,12 @@ function DataCenterCard({
 }
 
 function BubbleChart({ centers }: { centers: ComputingCenter[] }) {
-  const chartRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!chartRef.current) return;
-    const chart = echarts.init(chartRef.current, null, { renderer: "canvas" });
-
+  const options = useMemo(() => {
     const counts = centers.map((c) => c.chipCount);
     const min = Math.min(...counts);
     const max = Math.max(...counts);
 
-    chart.setOption({
+    return {
       backgroundColor: "transparent",
       series: [
         {
@@ -126,15 +121,13 @@ function BubbleChart({ centers }: { centers: ComputingCenter[] }) {
         formatter: (params: { data: { name: string; value: number } }) =>
           `${params.data.name}<br/>卡数量：${params.data.value}`,
       },
-    });
-
-    const handleResize = () => chart.resize();
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      chart.dispose();
     };
   }, [centers]);
 
-  return <div ref={chartRef} className="w-full h-full" />;
+  return (
+    <EchartsWidget
+      options={options}
+      initOpts={{ renderer: "canvas" }}
+    />
+  );
 }

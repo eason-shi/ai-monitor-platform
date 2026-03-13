@@ -1,5 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useMemo } from "react";
 import * as echarts from "echarts";
+import type { EChartsOption } from "echarts";
+import { EchartsWidget } from "@/ui/echarts-widget";
 
 const data = [
   { province: "河北", count: 856 },
@@ -15,19 +17,11 @@ const data = [
 ];
 
 export function BuildingPowerChart() {
-  const chartRef = useRef<HTMLDivElement>(null);
-  const instanceRef = useRef<echarts.ECharts | null>(null);
-
-  useEffect(() => {
-    if (!chartRef.current) return;
-
-    const chart = echarts.init(chartRef.current);
-    instanceRef.current = chart;
-
+  const options = useMemo<EChartsOption>(() => {
     const provinces = data.map((d) => d.province);
     const counts = data.map((d) => d.count);
 
-    chart.setOption({
+    return {
       xAxis: {
         type: "category",
         data: provinces,
@@ -77,17 +71,8 @@ export function BuildingPowerChart() {
       ],
       animationDuration: 1500,
       animationEasing: "cubicOut",
-    });
-
-    const handleResize = () => chart.resize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      chart.dispose();
-      instanceRef.current = null;
     };
   }, []);
 
-  return <div ref={chartRef} className="w-full h-full" />;
+  return <EchartsWidget options={options} />;
 }

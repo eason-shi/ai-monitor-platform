@@ -3,8 +3,6 @@ import { BuiltPowerChart } from "./built-power";
 import { OperatorShareChart } from "./operator-share";
 import { ChipShareChart } from "./chip-share";
 import { BuildingPowerChart } from "./building-power";
-import { DataCenterList } from "./data-center-list";
-import { data } from "./computing-center-data";
 import { DistributionMap } from "./distribution-map";
 
 export function PowerDistribution() {
@@ -18,19 +16,19 @@ export function PowerDistribution() {
         </div>
 
         <div className="flex-1 min-h-0">
-          <WidgetContainer title="建设中算力">
+          <WidgetContainer title="各省份规划或建设中智算算力规模">
             <BuildingPowerChart />
           </WidgetContainer>
         </div>
 
         <div className="flex-1 min-h-0">
-          <WidgetContainer title="运营商占比">
+          <WidgetContainer title="智能芯片类型占比（对外服务）">
             <OperatorShareChart />
           </WidgetContainer>
         </div>
 
         <div className="flex-1 min-h-0">
-          <WidgetContainer title="芯片厂商占比">
+          <WidgetContainer title="智算中心运营服务商占比">
             <ChipShareChart />
           </WidgetContainer>
         </div>
@@ -40,8 +38,30 @@ export function PowerDistribution() {
         <DistributionMap />
       </div>
 
-      <div className="w-[22%]">
-        <DataCenterList group={data[0]} />
+      <div className="w-[22%] flex flex-col gap-3 justify-between">
+        <div className="flex-1 min-h-0">
+          <WidgetContainer title="中国算力服务结构">
+            <div />
+          </WidgetContainer>
+        </div>
+
+        <div className="flex-1 min-h-0">
+          <WidgetContainer title="美国算力服务结构">
+            <div />
+          </WidgetContainer>
+        </div>
+
+        <div className="flex-1 min-h-0">
+          <WidgetContainer title="服务供给方式对比">
+            <div />
+          </WidgetContainer>
+        </div>
+
+        <div className="flex-1 min-h-0">
+          <WidgetContainer title="算力服务分布对比">
+            <div />
+          </WidgetContainer>
+        </div>
       </div>
     </div>
   );

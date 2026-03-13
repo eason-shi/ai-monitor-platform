@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useMemo } from "react";
 import * as echarts from "echarts";
+import { EchartsWidget } from "@/ui/echarts-widget";
 
 const data = [
   { company: "英伟达(NVIDIA)", share: 38.5 },
@@ -26,16 +27,8 @@ const colorMap: Record<string, [string, string]> = {
 };
 
 export function ChipShareChart() {
-  const chartRef = useRef<HTMLDivElement>(null);
-  const instanceRef = useRef<echarts.ECharts | null>(null);
-
-  useEffect(() => {
-    if (!chartRef.current) return;
-
-    const chart = echarts.init(chartRef.current);
-    instanceRef.current = chart;
-
-    chart.setOption({
+  const options = useMemo(
+    () => ({
       series: [
         {
           type: "pie",
@@ -85,18 +78,10 @@ export function ChipShareChart() {
         formatter: "{b}: {c} ({d}%)",
       },
       animationDuration: 1500,
-      animationEasing: "cubicOut",
-    });
+      animationEasing: "cubicOut" as const,
+    }),
+    [],
+  );
 
-    const handleResize = () => chart.resize();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      chart.dispose();
-      instanceRef.current = null;
-    };
-  }, []);
-
-  return <div ref={chartRef} className="w-full h-full" />;
+  return <EchartsWidget options={options} />;
 }
