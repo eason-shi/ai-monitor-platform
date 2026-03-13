@@ -15,6 +15,17 @@ const data = [
 ];
 
 const options: EChartsOption = {
+  tooltip: {
+    trigger: "axis",
+    backgroundColor: "rgba(8, 20, 48, 0.9)",
+    borderColor: "#00d4ff",
+    borderWidth: 1,
+    textStyle: { color: "#fff" },
+    formatter(params) {
+      const d = Array.isArray(params) ? params[0] : params;
+      return `${d.name}<br/>算力：<span style="color:#00d4ff">${d.value}</span> EFlops`;
+    },
+  },
   grid: {
     top: 60,
     bottom: 0,
