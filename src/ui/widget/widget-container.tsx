@@ -14,16 +14,16 @@ export function WidgetContainer(
         <span
           className="text-xl text-white italic"
           style={{
-            fontFamily:
-              '"Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif',
-            fontWeight: 900,
+            fontFamily: '"MiSans", sans-serif',
             letterSpacing: "2.74px",
           }}
         >
           {props.title}
         </span>
       </div>
-      <div className="flex-1 min-h-0 overflow-hidden">{props.children}</div>
+      <div className="flex-1 min-h-0 overflow-hidden bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px]">
+        {props.children}
+      </div>
     </div>
   );
 }
