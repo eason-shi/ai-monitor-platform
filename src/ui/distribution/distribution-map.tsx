@@ -12,14 +12,29 @@ interface TourPoint {
   name: string;
 }
 
+interface DistributionMapProps {
+  onProvinceChange?: (name: string) => void;
+  onTipVisibleChange?: (visible: boolean) => void;
+}
+
 const provinceChipMap = new Map<string, number>();
 for (const group of data) {
   const total = group.centers.reduce((sum, c) => sum + c.chipCount, 0);
   provinceChipMap.set(group.province, total);
 }
 
-export function DistributionMap() {
+export function DistributionMap({
+  onProvinceChange,
+  onTipVisibleChange,
+}: DistributionMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const onProvinceChangeRef = useRef(onProvinceChange);
+  const onTipVisibleChangeRef = useRef(onTipVisibleChange);
+  useEffect(() => {
+    onProvinceChangeRef.current = onProvinceChange;
+    onTipVisibleChangeRef.current = onTipVisibleChange;
+  });
 
   useEffect(() => {
     const container = containerRef.current;
@@ -120,6 +135,9 @@ export function DistributionMap() {
           TRANSITION_TIME,
         )
         .easing(TWEEN.Easing.Cubic.InOut)
+        .onStart(() => {
+          onTipVisibleChangeRef.current?.(false);
+        })
         .onUpdate(() => {
           camera.position.set(state.camX, state.camY, state.camZ);
           controls.target.set(state.targetX, state.targetY, state.targetZ);
@@ -148,6 +166,10 @@ export function DistributionMap() {
           TRANSITION_TIME,
         )
         .easing(TWEEN.Easing.Cubic.InOut)
+        .onStart(() => {
+          onProvinceChangeRef.current?.(nextPoint.name);
+          onTipVisibleChangeRef.current?.(true);
+        })
         .onUpdate(() => {
           camera.position.set(
             zoomInState.camX,
@@ -182,6 +204,8 @@ export function DistributionMap() {
       controls.target.set(first.position.x, first.position.y, first.position.z);
       controls.update();
 
+      onProvinceChangeRef.current?.(first.name);
+      onTipVisibleChangeRef.current?.(true);
       dwellTimer = setTimeout(() => transitionToNext(), DWELL_TIME);
     }
 
@@ -316,5 +340,5 @@ export function DistributionMap() {
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-full" />;
+  return <div ref={containerRef} className="relative w-full h-full" />;
 }

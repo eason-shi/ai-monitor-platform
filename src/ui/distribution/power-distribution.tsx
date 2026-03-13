@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { WidgetContainer } from "../widget/widget-container";
 import { BuiltPowerChart } from "./built-power";
 import { OperatorShareChart } from "./operator-share";
 import { ChipShareChart } from "./chip-share";
 import { BuildingPowerChart } from "./building-power";
 import { DistributionMap } from "./distribution-map";
+import { ComputingCenterTip } from "./computing-center-tip";
 
 export function PowerDistribution() {
+  const [province, setProvince] = useState<string | null>(null);
+  const [tipVisible, setTipVisible] = useState(false);
+
   return (
     <div className="w-full h-full flex gap-3 px-3 py-20">
       <div className="w-[22%] flex flex-col gap-3 justify-between">
@@ -34,8 +39,13 @@ export function PowerDistribution() {
         </div>
       </div>
 
-      <div className="w-[56%]">
-        <DistributionMap />
+      <div className="w-[56%] relative">
+        <DistributionMap
+          onProvinceChange={setProvince}
+          onTipVisibleChange={setTipVisible}
+        />
+
+        <ComputingCenterTip province={province} visible={tipVisible} />
       </div>
 
       <div className="w-[22%] flex flex-col gap-3 justify-between">
