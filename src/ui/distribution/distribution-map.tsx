@@ -72,6 +72,7 @@ export function DistributionMap() {
     let mixer: THREE.AnimationMixer | null = null;
     const dataPoints: THREE.Mesh[] = [];
     const tourPoints: TourPoint[] = [];
+    const provinceMeshes: THREE.Object3D[] = [];
 
     const DWELL_TIME = 4000;
     const TRANSITION_TIME = 1500;
@@ -202,6 +203,9 @@ export function DistributionMap() {
 
         for (const child of provinceGroups) {
           const chips = provinceChipMap.get(child.name);
+          console.log(child);
+          provinceMeshes.push(child);
+
           if (chips == null) continue;
 
           const worldPos = new THREE.Vector3();
@@ -222,6 +226,10 @@ export function DistributionMap() {
           tourPoints.push({
             position: sphere.position.clone(),
             name: child.name,
+          });
+
+          child.traverse((obj) => {
+            obj.userData.provinceName = child.name;
           });
         }
       })
@@ -264,9 +272,31 @@ export function DistributionMap() {
     });
     resizeObserver.observe(container);
 
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    const handleClick = (event: MouseEvent) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(provinceMeshes, true);
+      if (intersects.length > 0) {
+        console.log(intersects[0].object.parent?.name);
+        // const provinceName = intersects[0].object.userData.provinceName;
+        // if (provinceName) {
+        //   console.log(provinceName);
+        // }
+      }
+    };
+
+    renderer.domElement.addEventListener("click", handleClick);
+
     return () => {
       if (dwellTimer) clearTimeout(dwellTimer);
       tweenGroup.removeAll();
+      renderer.domElement.removeEventListener("click", handleClick);
       resizeObserver.disconnect();
       cancelAnimationFrame(animationId);
       controls.dispose();
