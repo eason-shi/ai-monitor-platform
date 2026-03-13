@@ -8,10 +8,18 @@ export function WidgetContainer(
   props: WidgetContainerProps & PropsWithChildren,
 ) {
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden border border-[rgba(100,180,255,0.15)] bg-[rgba(1,21,47,0.6)]">
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-[rgba(100,180,255,0.2)] shrink-0">
-        <div className="w-1 h-4 bg-[rgba(100,200,255,0.8)] shadow-[0_0_6px_rgba(100,200,255,0.8)]" />
-        <span className="text-sm font-semibold text-white/90 tracking-wider drop-shadow-[0_0_8px_rgba(100,200,255,0.6)]">
+    <div className="w-full h-full flex flex-col overflow-hidden ">
+      <div className="flex items-center gap-x-5 h-11 bg-linear-to-r from-[#0058A2] from-[1.65%] to-[rgba(0,61,89,0)] to-[96.88%]">
+        <img src="/widget-title-icon.svg" />
+        <span
+          className="text-xl text-white italic"
+          style={{
+            fontFamily:
+              '"Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif',
+            fontWeight: 900,
+            letterSpacing: "2.74px",
+          }}
+        >
           {props.title}
         </span>
       </div>

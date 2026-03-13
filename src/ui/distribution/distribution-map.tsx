@@ -234,7 +234,7 @@ export function DistributionMap() {
         }
       })
       .then(() => {
-        // startTour();
+        startTour();
       })
       .catch((error) => {
         console.error("GLB model loading failed:", error);

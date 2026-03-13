@@ -6,6 +6,8 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const padding = 16;
+
 function Index() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -16,12 +18,13 @@ function Index() {
     if (!el) return;
 
     const observer = new ResizeObserver((entries) => {
-      const { width, height } = entries[0].contentRect;
+      const width = entries[0].contentRect.width - 2 * padding;
+      const height = entries[0].contentRect.height - 2 * padding;
       const s = Math.min(width / 3200, height / 1800);
       setScale(s);
       setOffset({
-        x: (width - 3200 * s) / 2,
-        y: (height - 1800 * s) / 2,
+        x: (width - 3200 * s) / 2 + padding,
+        y: (height - 1800 * s) / 2 + padding,
       });
     });
 
@@ -32,7 +35,7 @@ function Index() {
   return (
     <div ref={containerRef} className="w-full h-full overflow-hidden">
       <div
-        className="w-[3200px] h-[1800px] origin-top-left"
+        className="w-[3200px] h-[1800px] origin-top-left border border-white"
         style={{
           transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
         }}

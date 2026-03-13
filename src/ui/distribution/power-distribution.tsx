@@ -10,7 +10,7 @@ import { DistributionMap } from "./distribution-map";
 export function PowerDistribution() {
   return (
     <div className="w-full h-full flex gap-3 px-3 py-20">
-      <div className="w-[12%] flex flex-col gap-3">
+      <div className="w-[22%] flex flex-col gap-3">
         <div className="flex-1 min-h-0">
           <WidgetContainer title="已建算力">
             <BuiltPowerChart />
@@ -36,11 +36,11 @@ export function PowerDistribution() {
         </div>
       </div>
 
-      <div className="w-[76%]">
+      <div className="w-[56%]">
         <DistributionMap />
       </div>
 
-      <div className="w-[12%]">
+      <div className="w-[22%]">
         <DataCenterList group={data[0]} />
       </div>
     </div>
