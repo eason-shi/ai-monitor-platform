@@ -3,8 +3,14 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import * as TWEEN from "@tweenjs/tween.js";
 import { data } from "./computing-center-data";
 import { loadGlbModel } from "./glb-loader";
+
+interface TourPoint {
+  position: THREE.Vector3;
+  name: string;
+}
 
 const provinceChipMap = new Map<string, number>();
 for (const group of data) {
@@ -65,9 +71,123 @@ export function DistributionMap() {
 
     let mixer: THREE.AnimationMixer | null = null;
     const dataPoints: THREE.Mesh[] = [];
+    const tourPoints: TourPoint[] = [];
+
+    const DWELL_TIME = 4000;
+    const TRANSITION_TIME = 1500;
+    const OVERVIEW_POS = { x: 0, y: 28, z: 16 };
+    const OVERVIEW_TARGET = { x: 0, y: 0, z: -1 };
+    const tweenGroup = new TWEEN.Group();
+    let currentTourIndex = 0;
+    let dwellTimer: ReturnType<typeof setTimeout> | null = null;
+
+    function transitionToNext() {
+      const nextIndex = currentTourIndex % tourPoints.length;
+      const nextPoint = tourPoints[nextIndex];
+      currentTourIndex = nextIndex + 1;
+
+      const nextCamPos = {
+        x: nextPoint.position.x,
+        y: nextPoint.position.y + 8,
+        z: nextPoint.position.z + 8,
+      };
+      const nextTarget = {
+        x: nextPoint.position.x,
+        y: nextPoint.position.y,
+        z: nextPoint.position.z,
+      };
+
+      const state = {
+        camX: camera.position.x,
+        camY: camera.position.y,
+        camZ: camera.position.z,
+        targetX: controls.target.x,
+        targetY: controls.target.y,
+        targetZ: controls.target.z,
+      };
+
+      const zoomOut = new TWEEN.Tween(state, tweenGroup)
+        .to(
+          {
+            camX: OVERVIEW_POS.x,
+            camY: OVERVIEW_POS.y,
+            camZ: OVERVIEW_POS.z,
+            targetX: OVERVIEW_TARGET.x,
+            targetY: OVERVIEW_TARGET.y,
+            targetZ: OVERVIEW_TARGET.z,
+          },
+          TRANSITION_TIME,
+        )
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .onUpdate(() => {
+          camera.position.set(state.camX, state.camY, state.camZ);
+          controls.target.set(state.targetX, state.targetY, state.targetZ);
+          controls.update();
+        });
+
+      const zoomInState = {
+        camX: OVERVIEW_POS.x,
+        camY: OVERVIEW_POS.y,
+        camZ: OVERVIEW_POS.z,
+        targetX: OVERVIEW_TARGET.x,
+        targetY: OVERVIEW_TARGET.y,
+        targetZ: OVERVIEW_TARGET.z,
+      };
+
+      const zoomIn = new TWEEN.Tween(zoomInState, tweenGroup)
+        .to(
+          {
+            camX: nextCamPos.x,
+            camY: nextCamPos.y,
+            camZ: nextCamPos.z,
+            targetX: nextTarget.x,
+            targetY: nextTarget.y,
+            targetZ: nextTarget.z,
+          },
+          TRANSITION_TIME,
+        )
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .onUpdate(() => {
+          camera.position.set(
+            zoomInState.camX,
+            zoomInState.camY,
+            zoomInState.camZ,
+          );
+          controls.target.set(
+            zoomInState.targetX,
+            zoomInState.targetY,
+            zoomInState.targetZ,
+          );
+          controls.update();
+        })
+        .onComplete(() => {
+          dwellTimer = setTimeout(() => transitionToNext(), DWELL_TIME);
+        });
+
+      zoomOut.chain(zoomIn);
+      zoomOut.start();
+    }
+
+    function startTour() {
+      if (tourPoints.length === 0) return;
+      const first = tourPoints[0];
+      currentTourIndex = 1;
+
+      camera.position.set(
+        first.position.x,
+        first.position.y + 8,
+        first.position.z + 8,
+      );
+      controls.target.set(first.position.x, first.position.y, first.position.z);
+      controls.update();
+
+      dwellTimer = setTimeout(() => transitionToNext(), DWELL_TIME);
+    }
 
     loadGlbModel(gltfLoader)
       .then((gltf) => {
+        console.log(gltf);
+
         const model = gltf.scene;
         scene.add(model);
 
@@ -99,7 +219,14 @@ export function DistributionMap() {
           sphere.position.y += 0.6;
           scene.add(sphere);
           dataPoints.push(sphere);
+          tourPoints.push({
+            position: sphere.position.clone(),
+            name: child.name,
+          });
         }
+      })
+      .then(() => {
+        // startTour();
       })
       .catch((error) => {
         console.error("GLB model loading failed:", error);
@@ -122,6 +249,7 @@ export function DistributionMap() {
           0.6 + 0.25 * Math.sin(timestamp * 0.003);
       }
 
+      tweenGroup.update(timestamp);
       controls.update();
       renderer.render(scene, camera);
     };
@@ -137,6 +265,8 @@ export function DistributionMap() {
     resizeObserver.observe(container);
 
     return () => {
+      if (dwellTimer) clearTimeout(dwellTimer);
+      tweenGroup.removeAll();
       resizeObserver.disconnect();
       cancelAnimationFrame(animationId);
       controls.dispose();
