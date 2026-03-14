@@ -40,7 +40,7 @@ export function PowerDistribution() {
       </div>
 
       <div className="w-[56%] relative flex flex-col">
-        <div className="h-[256px] bg-amber-50"></div>
+        <div className="h-[256px]"></div>
 
         <div className="flex-1">
           <DistributionMap
