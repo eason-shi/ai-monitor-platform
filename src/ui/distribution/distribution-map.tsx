@@ -40,10 +40,10 @@ interface DistributionMapProps {
 }
 
 function lonLatToModel(lon: number, lat: number) {
-  const scaleX = 0.2;
-  const scaleZ = -0.2;
-  const offsetX = -21;
-  const offsetZ = 6;
+  const scaleX = 0.877150027387623;
+  const scaleZ = -44.39121698080014;
+  const offsetX = -92.46535967185065;
+  const offsetZ = 28.413195901434506;
   const offsetY = 0;
 
   const mx = lon;
@@ -281,7 +281,7 @@ export function DistributionMap({
             transparent: true,
           });
           const sprite = new THREE.Sprite(spriteMat);
-          sprite.position.set(pos.x, pos.y + 2, pos.z);
+          sprite.position.set(pos.x, 1, pos.z);
           sprite.scale.set(1, 1, 1);
           scene.add(sprite);
           dataPoints.push(sprite);
