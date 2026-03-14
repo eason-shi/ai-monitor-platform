@@ -1,4 +1,4 @@
-import { data } from "./computing-center-data";
+import { realData } from "./computing-center-data";
 
 interface ComputingCenterTipProps {
   province: string | null;
@@ -11,10 +11,13 @@ export function ComputingCenterTip({
 }: ComputingCenterTipProps) {
   if (!province) return null;
 
-  const group = data.find((g) => g.province === province);
-  if (!group) return null;
+  const clusters = realData.filter((c) => c.region_prov === province);
+  if (clusters.length === 0) return null;
 
-  const totalChips = group.centers.reduce((sum, c) => sum + c.chipCount, 0);
+  const totalCards = clusters.reduce(
+    (sum, c) => sum + parseInt(c.card_quantity, 10),
+    0,
+  );
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
@@ -41,20 +44,20 @@ export function ComputingCenterTip({
                 letterSpacing: "2.74px",
               }}
             >
-              {group.province} · 智算中心
+              {province} · 智算中心
             </span>
           </div>
           <div className="flex items-center gap-x-6 text-sm text-white/80">
             <span>
               中心数量：
               <span className="text-cyan-300 font-medium">
-                {group.centers.length}
+                {clusters.length}
               </span>
             </span>
             <span>
-              总芯片数：
+              总卡数：
               <span className="text-cyan-300 font-medium">
-                {totalChips.toLocaleString()}
+                {totalCards.toLocaleString()}
               </span>
             </span>
           </div>
@@ -68,9 +71,9 @@ export function ComputingCenterTip({
           }}
         >
           <div className="grid grid-cols-3 gap-4">
-            {group.centers.map((center) => (
+            {clusters.map((c) => (
               <div
-                key={center.id}
+                key={c.id}
                 className="rounded-lg border border-slate-600/60 bg-slate-800/50 p-5 transition-colors hover:border-cyan-400/60 hover:shadow-[0_0_12px_rgba(34,211,238,0.15)]"
               >
                 <div
@@ -79,21 +82,21 @@ export function ComputingCenterTip({
                     fontFamily: '"MiSans", sans-serif',
                   }}
                 >
-                  {center.name}
+                  {c.cluster_name}
                 </div>
                 <div className="space-y-2 text-sm text-white/70">
                   <div className="flex justify-between">
                     <span>所在区域</span>
-                    <span className="text-white/90">{center.district}</span>
+                    <span className="text-white/90">{c.region_city}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>芯片类型</span>
-                    <span className="text-white/90">{center.chipType}</span>
+                    <span className="text-white/90">{c.chip_type}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>芯片数量</span>
+                    <span>卡数量</span>
                     <span className="text-cyan-300 font-medium">
-                      {center.chipCount.toLocaleString()}
+                      {parseInt(c.card_quantity, 10).toLocaleString()}
                     </span>
                   </div>
                 </div>

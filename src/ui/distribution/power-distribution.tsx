@@ -48,7 +48,7 @@ export function PowerDistribution() {
             onTipVisibleChange={setTipVisible}
           />
 
-          {/* <ComputingCenterTip province={province} visible={tipVisible} /> */}
+          <ComputingCenterTip province={province} visible={tipVisible} />
         </div>
 
         <div className="h-[280px]"></div>

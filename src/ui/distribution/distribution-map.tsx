@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as TWEEN from "@tweenjs/tween.js";
-import { data, realData } from "./computing-center-data";
+import { realData } from "./computing-center-data";
 import { loadGlbModel } from "./glb-loader";
 
 function loadSvgTexture(
@@ -39,10 +39,28 @@ interface DistributionMapProps {
   onTipVisibleChange?: (visible: boolean) => void;
 }
 
-const provinceChipMap = new Map<string, number>();
-for (const group of data) {
-  const total = group.centers.reduce((sum, c) => sum + c.chipCount, 0);
-  provinceChipMap.set(group.province, total);
+function lonLatToModel(lon: number, lat: number) {
+  const scaleX = 0.2;
+  const scaleZ = -0.2;
+  const offsetX = -21;
+  const offsetZ = 6;
+  const offsetY = 0;
+
+  const mx = lon;
+  const my = Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360));
+
+  return {
+    x: scaleX * mx + offsetX,
+    y: offsetY,
+    z: scaleZ * my + offsetZ,
+  };
+}
+
+const provinceGroupsMap = new Map<string, typeof realData>();
+for (const item of realData) {
+  const arr = provinceGroupsMap.get(item.region_prov);
+  if (arr) arr.push(item);
+  else provinceGroupsMap.set(item.region_prov, [item]);
 }
 
 export function DistributionMap({
@@ -245,34 +263,47 @@ export function DistributionMap({
           action.play();
         }
 
-        const provinceGroups = gltf.scene.children[1]?.children ?? [];
-
-        for (const child of provinceGroups) {
-          const chips = provinceChipMap.get(child.name);
+        const provinceChildren = gltf.scene.children[1]?.children ?? [];
+        for (const child of provinceChildren) {
           provinceMeshes.push(child);
+          child.traverse((obj) => {
+            obj.userData.provinceName = child.name;
+          });
+        }
 
-          if (chips == null) continue;
-
-          const worldPos = new THREE.Vector3();
-          child.getWorldPosition(worldPos);
-
+        for (const item of realData) {
+          const pos = lonLatToModel(
+            parseFloat(item.longitude),
+            parseFloat(item.latitude),
+          );
           const spriteMat = new THREE.SpriteMaterial({
             map: texture,
             transparent: true,
           });
           const sprite = new THREE.Sprite(spriteMat);
-          sprite.position.copy(worldPos);
-          sprite.position.y += 2;
+          sprite.position.set(pos.x, pos.y + 2, pos.z);
           sprite.scale.set(1, 1, 1);
           scene.add(sprite);
           dataPoints.push(sprite);
-          tourPoints.push({
-            position: sprite.position.clone(),
-            name: child.name,
-          });
+        }
 
-          child.traverse((obj) => {
-            obj.userData.provinceName = child.name;
+        for (const [prov, clusters] of provinceGroupsMap) {
+          let cx = 0,
+            cy = 0,
+            cz = 0;
+          for (const c of clusters) {
+            const pos = lonLatToModel(
+              parseFloat(c.longitude),
+              parseFloat(c.latitude),
+            );
+            cx += pos.x;
+            cy += pos.y;
+            cz += pos.z;
+          }
+          const n = clusters.length;
+          tourPoints.push({
+            position: new THREE.Vector3(cx / n, cy / n + 2, cz / n),
+            name: prov,
           });
         }
       })
