@@ -7,6 +7,28 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { data } from "./computing-center-data";
 import { loadGlbModel } from "./glb-loader";
 
+function loadSvgTexture(
+  url: string,
+  size: number,
+): Promise<THREE.CanvasTexture> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, size, size);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.premultiplyAlpha = false;
+      texture.needsUpdate = true;
+      resolve(texture);
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
 interface TourPoint {
   position: THREE.Vector3;
   name: string;
@@ -85,7 +107,8 @@ export function DistributionMap({
     gltfLoader.setDRACOLoader(dracoLoader);
 
     let mixer: THREE.AnimationMixer | null = null;
-    const dataPoints: THREE.Mesh[] = [];
+    const dataPoints: THREE.Sprite[] = [];
+    let markerTexture: THREE.CanvasTexture | null = null;
     const tourPoints: TourPoint[] = [];
     const provinceMeshes: THREE.Object3D[] = [];
 
@@ -209,9 +232,9 @@ export function DistributionMap({
       dwellTimer = setTimeout(() => transitionToNext(), DWELL_TIME);
     }
 
-    loadGlbModel(gltfLoader)
-      .then((gltf) => {
-        console.log(gltf);
+    Promise.all([loadGlbModel(gltfLoader), loadSvgTexture("/marker.svg", 128)])
+      .then(([gltf, texture]) => {
+        markerTexture = texture;
 
         const model = gltf.scene;
         scene.add(model);
@@ -223,11 +246,9 @@ export function DistributionMap({
         }
 
         const provinceGroups = gltf.scene.children[1]?.children ?? [];
-        const maxChips = Math.max(...provinceChipMap.values());
 
         for (const child of provinceGroups) {
           const chips = provinceChipMap.get(child.name);
-          console.log(child);
           provinceMeshes.push(child);
 
           if (chips == null) continue;
@@ -235,20 +256,18 @@ export function DistributionMap({
           const worldPos = new THREE.Vector3();
           child.getWorldPosition(worldPos);
 
-          const radius = 0.15 + (chips / maxChips) * 0.35;
-          const geo = new THREE.SphereGeometry(radius, 16, 16);
-          const mat = new THREE.MeshBasicMaterial({
-            color: 0x00d4ff,
+          const spriteMat = new THREE.SpriteMaterial({
+            map: texture,
             transparent: true,
-            opacity: 0.85,
           });
-          const sphere = new THREE.Mesh(geo, mat);
-          sphere.position.copy(worldPos);
-          sphere.position.y += 0.6;
-          scene.add(sphere);
-          dataPoints.push(sphere);
+          const sprite = new THREE.Sprite(spriteMat);
+          sprite.position.copy(worldPos);
+          sprite.position.y += 2;
+          sprite.scale.set(1, 1, 1);
+          scene.add(sprite);
+          dataPoints.push(sprite);
           tourPoints.push({
-            position: sphere.position.clone(),
+            position: sprite.position.clone(),
             name: child.name,
           });
 
@@ -276,9 +295,7 @@ export function DistributionMap({
 
       const pulse = 0.9 + 0.2 * Math.sin(timestamp * 0.003);
       for (const pt of dataPoints) {
-        pt.scale.setScalar(pulse);
-        (pt.material as THREE.MeshBasicMaterial).opacity =
-          0.6 + 0.25 * Math.sin(timestamp * 0.003);
+        pt.scale.set(1.2 * pulse, 1.4 * pulse, 1);
       }
 
       tweenGroup.update(timestamp);
@@ -325,6 +342,7 @@ export function DistributionMap({
       cancelAnimationFrame(animationId);
       controls.dispose();
       dracoLoader.dispose();
+      markerTexture?.dispose();
       scene.traverse((obj) => {
         if (obj instanceof THREE.Mesh) {
           obj.geometry.dispose();
@@ -333,6 +351,9 @@ export function DistributionMap({
           } else {
             obj.material.dispose();
           }
+        }
+        if (obj instanceof THREE.Sprite) {
+          obj.material.dispose();
         }
       });
       renderer.dispose();
