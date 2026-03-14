@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as TWEEN from "@tweenjs/tween.js";
-import { data } from "./computing-center-data";
+import { data, realData } from "./computing-center-data";
 import { loadGlbModel } from "./glb-loader";
 
 function loadSvgTexture(
