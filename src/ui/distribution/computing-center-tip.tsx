@@ -17,15 +17,7 @@ export function ComputingCenterTip({
   const totalChips = group.centers.reduce((sum, c) => sum + c.chipCount, 0);
 
   return (
-    <div
-      className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
-      style={{
-        opacity: visible ? 1 : 0,
-        transition: "opacity 1500ms cubic-bezier(0.65, 0, 0.35, 1)",
-      }}
-    >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" />
-
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
       <div
         className="relative w-[1120px] h-[780px] flex flex-col overflow-hidden"
         style={{
@@ -33,7 +25,13 @@ export function ComputingCenterTip({
           transition: "transform 1500ms cubic-bezier(0.65, 0, 0.35, 1)",
         }}
       >
-        <div className="flex items-center justify-between h-12 bg-linear-to-r from-[#0058A2] from-[1.65%] to-[rgba(0,61,89,0)] to-[96.88%] px-5 shrink-0">
+        <div
+          className="flex items-center justify-between h-12 bg-linear-to-r from-[#0058A2] from-[1.65%] to-[rgba(0,61,89,0)] to-[96.88%] px-5 shrink-0"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: "opacity 1500ms cubic-bezier(0.65, 0, 0.35, 1)",
+          }}
+        >
           <div className="flex items-center gap-x-4">
             <img src="/widget-title-icon.svg" />
             <span
@@ -62,7 +60,13 @@ export function ComputingCenterTip({
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6">
+        <div
+          className="flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: "opacity 1500ms cubic-bezier(0.65, 0, 0.35, 1)",
+          }}
+        >
           <div className="grid grid-cols-3 gap-4">
             {group.centers.map((center) => (
               <div

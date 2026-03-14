@@ -39,13 +39,19 @@ export function PowerDistribution() {
         </div>
       </div>
 
-      <div className="w-[56%] relative">
-        <DistributionMap
-          onProvinceChange={setProvince}
-          onTipVisibleChange={setTipVisible}
-        />
+      <div className="w-[56%] relative flex flex-col">
+        <div className="h-[256px] bg-amber-50"></div>
 
-        <ComputingCenterTip province={province} visible={tipVisible} />
+        <div className="flex-1">
+          <DistributionMap
+            onProvinceChange={setProvince}
+            onTipVisibleChange={setTipVisible}
+          />
+
+          <ComputingCenterTip province={province} visible={tipVisible} />
+        </div>
+
+        <div className="h-[280px]"></div>
       </div>
 
       <div className="w-[22%] flex flex-col gap-3 justify-between">
