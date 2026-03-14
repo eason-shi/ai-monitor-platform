@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ModuleItem } from "./module-item";
 
-type ModuleType = "computing" | "data" | "model" | "graph";
-
 export function BaseHeader() {
-  const [activeModule, setActiveModule] = useState<ModuleType>("computing");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isActive = (path: string) =>
+    path === "/"
+      ? location.pathname === "/"
+      : location.pathname.startsWith(path);
 
   return (
     <div className="absolute top-0 left-0 w-full">
@@ -15,12 +19,28 @@ export function BaseHeader() {
         </span>
       </div>
       <div className="absolute left-[12%] top-1/2 -translate-y-1/2 flex gap-4">
-        <ModuleItem itemName="算力底座" active={activeModule == "computing"} />
-        <ModuleItem itemName="AI数据" active={activeModule == "data"} />
+        <ModuleItem
+          itemName="算力底座"
+          active={isActive("/")}
+          onClick={() => navigate({ to: "/" })}
+        />
+        <ModuleItem
+          itemName="AI数据"
+          active={isActive("/data")}
+          onClick={() => navigate({ to: "/data" })}
+        />
       </div>
       <div className="absolute right-[12%] top-1/2 -translate-y-1/2 flex gap-4">
-        <ModuleItem itemName="大模型" active={activeModule == "model"} />
-        <ModuleItem itemName="知识图谱" active={activeModule == "graph"} />
+        <ModuleItem
+          itemName="大模型"
+          active={isActive("/model")}
+          onClick={() => navigate({ to: "/model" })}
+        />
+        <ModuleItem
+          itemName="知识图谱"
+          active={isActive("/graph")}
+          onClick={() => navigate({ to: "/graph" })}
+        />
       </div>
     </div>
   );

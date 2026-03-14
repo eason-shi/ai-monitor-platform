@@ -2,15 +2,18 @@ interface ModuleItemProps {
   active?: boolean;
   itemName: string;
   className?: string;
+  onClick?: () => void;
 }
 
 export function ModuleItem({
   active = false,
   itemName,
   className,
+  onClick,
 }: ModuleItemProps) {
   return (
     <div
+      onClick={onClick}
       className={`
         relative flex items-center justify-center
         w-[288px] h-20
