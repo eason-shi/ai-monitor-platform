@@ -50,3 +50,5 @@ Thumbs.db
 # Lock files (if using npm exclusively)
 # yarn.lock
 # pnpm-lock.yaml
+
+.superpowers
