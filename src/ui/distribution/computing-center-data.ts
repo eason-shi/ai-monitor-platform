@@ -387,13 +387,6 @@ export const data: ProvinceGroup[] = [
   },
 ];
 
-export function aggregateByProvince(groups: ProvinceGroup[]) {
-  return groups.map((g) => ({
-    name: g.province,
-    value: g.centers.reduce((sum, c) => sum + c.chipCount, 0),
-  }));
-}
-
 const realData = [
   {
     cluster_name: "云赛数海科技松江大数据计算中心",
