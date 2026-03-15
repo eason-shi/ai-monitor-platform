@@ -327,32 +327,6 @@ export function DistributionMap({
       zoomOut.start();
     }
 
-    function startTour() {
-      if (tourPoints.length === 0) return;
-      const first = tourPoints[0];
-      currentTourIndex = 1;
-
-      camera.position.set(
-        first.cameraPosition.x,
-        first.cameraPosition.y,
-        first.cameraPosition.z,
-      );
-      controls.target.set(first.position.x, first.position.y, first.position.z);
-      controls.update();
-
-      for (const [prov, sprites] of dataPointsByProvince) {
-        if (prov !== first.name) {
-          for (const sprite of sprites) {
-            (sprite.material as THREE.SpriteMaterial).opacity = 0;
-          }
-        }
-      }
-
-      onProvinceChangeRef.current?.(first.name);
-      onTipVisibleChangeRef.current?.(true);
-      dwellTimer = setTimeout(() => transitionToNext(), DWELL_TIME);
-    }
-
     const textureLoader = new THREE.TextureLoader();
     const loadTextures = Promise.all([
       textureLoader.loadAsync("/chinese-marker.png"),
@@ -419,7 +393,7 @@ export function DistributionMap({
         }
       })
       .then(() => {
-        startTour();
+        transitionToNext();
       })
       .catch((error) => {
         console.error("GLB model loading failed:", error);
