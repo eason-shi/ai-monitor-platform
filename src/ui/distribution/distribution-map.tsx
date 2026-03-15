@@ -119,7 +119,7 @@ export function DistributionMap({
     gltfLoader.setDRACOLoader(dracoLoader);
 
     let mixer: THREE.AnimationMixer | null = null;
-    const dataPoints: THREE.Sprite[] = [];
+    const dataPointsByProvince = new Map<string, THREE.Sprite[]>();
     let markerTextures: Record<string, THREE.Texture> | null = null;
     const tourPoints: TourPoint[] = [];
     const provinceMeshes: THREE.Object3D[] = [];
@@ -131,6 +131,24 @@ export function DistributionMap({
     const tweenGroup = new TWEEN.Group();
     let currentTourIndex = 0;
     let dwellTimer: ReturnType<typeof setTimeout> | null = null;
+
+    function fadeMarkers(targetProvince: string | null) {
+      for (const [prov, sprites] of dataPointsByProvince) {
+        const targetOpacity =
+          targetProvince === null || prov === targetProvince ? 1 : 0;
+        for (const sprite of sprites) {
+          const mat = sprite.material as THREE.SpriteMaterial;
+          const obj = { opacity: mat.opacity };
+          new TWEEN.Tween(obj, tweenGroup)
+            .to({ opacity: targetOpacity }, TRANSITION_TIME)
+            .easing(TWEEN.Easing.Cubic.InOut)
+            .onUpdate(() => {
+              mat.opacity = obj.opacity;
+            })
+            .start();
+        }
+      }
+    }
 
     function transitionToNext() {
       const nextIndex = currentTourIndex % tourPoints.length;
@@ -172,6 +190,7 @@ export function DistributionMap({
         .easing(TWEEN.Easing.Cubic.InOut)
         .onStart(() => {
           onTipVisibleChangeRef.current?.(false);
+          fadeMarkers(null);
         })
         .onUpdate(() => {
           camera.position.set(state.camX, state.camY, state.camZ);
@@ -204,6 +223,7 @@ export function DistributionMap({
         .onStart(() => {
           onProvinceChangeRef.current?.(nextPoint.name);
           onTipVisibleChangeRef.current?.(true);
+          fadeMarkers(nextPoint.name);
         })
         .onUpdate(() => {
           camera.position.set(
@@ -238,6 +258,14 @@ export function DistributionMap({
       );
       controls.target.set(first.position.x, first.position.y, first.position.z);
       controls.update();
+
+      for (const [prov, sprites] of dataPointsByProvince) {
+        if (prov !== first.name) {
+          for (const sprite of sprites) {
+            (sprite.material as THREE.SpriteMaterial).opacity = 0;
+          }
+        }
+      }
 
       onProvinceChangeRef.current?.(first.name);
       onTipVisibleChangeRef.current?.(true);
@@ -293,7 +321,9 @@ export function DistributionMap({
           sprite.position.set(pos.x, 1, pos.z);
           sprite.scale.set(1, 1, 1);
           scene.add(sprite);
-          dataPoints.push(sprite);
+          const arr = dataPointsByProvince.get(item.region_prov);
+          if (arr) arr.push(sprite);
+          else dataPointsByProvince.set(item.region_prov, [sprite]);
         }
 
         for (const [prov, clusters] of provinceGroupsMap) {
@@ -334,8 +364,12 @@ export function DistributionMap({
       mixer?.update(delta);
 
       const pulse = 0.9 + 0.2 * Math.sin(timestamp * 0.003);
-      for (const pt of dataPoints) {
-        pt.scale.set(1.2 * pulse, 1.4 * pulse, 1);
+      for (const sprites of dataPointsByProvince.values()) {
+        for (const pt of sprites) {
+          if ((pt.material as THREE.SpriteMaterial).opacity > 0) {
+            pt.scale.set(1.2 * pulse, 1.4 * pulse, 1);
+          }
+        }
       }
 
       tweenGroup.update(timestamp);
