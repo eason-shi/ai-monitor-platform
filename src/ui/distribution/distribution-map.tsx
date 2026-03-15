@@ -25,7 +25,88 @@ function getMarkerByColonyType(
 
 interface TourPoint {
   position: THREE.Vector3;
+  cameraPosition: THREE.Vector3;
   name: string;
+}
+
+const MIN_SPREAD = 4;
+const CAM_ELEVATION = Math.PI * 0.22;
+const FOV_DEG = 55;
+const FOV_RAD = (FOV_DEG * Math.PI) / 180;
+
+function computeTourView(points: { x: number; y: number; z: number }[]): {
+  target: THREE.Vector3;
+  cameraPosition: THREE.Vector3;
+} {
+  const n = points.length;
+  let cx = 0,
+    cy = 0,
+    cz = 0;
+  for (const p of points) {
+    cx += p.x;
+    cy += p.y;
+    cz += p.z;
+  }
+  cx /= n;
+  cy /= n;
+  cz /= n;
+  const target = new THREE.Vector3(cx, cy + 2, cz);
+
+  let minX = Infinity,
+    maxX = -Infinity,
+    minZ = Infinity,
+    maxZ = -Infinity;
+  for (const p of points) {
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.z < minZ) minZ = p.z;
+    if (p.z > maxZ) maxZ = p.z;
+  }
+  const diagLen = Math.sqrt((maxX - minX) ** 2 + (maxZ - minZ) ** 2);
+  const spread = Math.max(diagLen, MIN_SPREAD);
+  const rawDist = spread / (2 * Math.tan(FOV_RAD / 2)) + 2;
+  const distance = Math.max(6, Math.min(20, rawDist));
+
+  let azimuth = 0;
+
+  if (n >= 3) {
+    let covXX = 0,
+      covXZ = 0,
+      covZZ = 0;
+    for (const p of points) {
+      const dx = p.x - cx,
+        dz = p.z - cz;
+      covXX += dx * dx;
+      covXZ += dx * dz;
+      covZZ += dz * dz;
+    }
+    covXX /= n;
+    covXZ /= n;
+    covZZ /= n;
+
+    const trace = covXX + covZZ;
+    const det = covXX * covZZ - covXZ * covXZ;
+    const disc = Math.sqrt(Math.max(0, (trace * trace) / 4 - det));
+    const lambda2 = trace / 2 - disc;
+
+    const evX = covXZ;
+    const evZ = lambda2 - covXX;
+    const len = Math.sqrt(evX * evX + evZ * evZ);
+    if (len > 1e-6) {
+      azimuth = Math.atan2(evZ, evX);
+      if (Math.cos(azimuth) < 0) azimuth += Math.PI;
+      if (azimuth > Math.PI) azimuth -= 2 * Math.PI;
+      azimuth = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, azimuth));
+    }
+  }
+
+  const camX =
+    target.x + distance * Math.cos(CAM_ELEVATION) * Math.sin(azimuth);
+  const camY = target.y + distance * Math.sin(CAM_ELEVATION);
+  const camZ =
+    target.z + distance * Math.cos(CAM_ELEVATION) * Math.cos(azimuth);
+
+  return { target, cameraPosition: new THREE.Vector3(camX, camY, camZ) };
 }
 
 interface DistributionMapProps {
@@ -156,9 +237,9 @@ export function DistributionMap({
       currentTourIndex = nextIndex + 1;
 
       const nextCamPos = {
-        x: nextPoint.position.x,
-        y: nextPoint.position.y + 8,
-        z: nextPoint.position.z + 8,
+        x: nextPoint.cameraPosition.x,
+        y: nextPoint.cameraPosition.y,
+        z: nextPoint.cameraPosition.z,
       };
       const nextTarget = {
         x: nextPoint.position.x,
@@ -252,9 +333,9 @@ export function DistributionMap({
       currentTourIndex = 1;
 
       camera.position.set(
-        first.position.x,
-        first.position.y + 8,
-        first.position.z + 8,
+        first.cameraPosition.x,
+        first.cameraPosition.y,
+        first.cameraPosition.z,
       );
       controls.target.set(first.position.x, first.position.y, first.position.z);
       controls.update();
@@ -327,23 +408,11 @@ export function DistributionMap({
         }
 
         for (const [prov, clusters] of provinceGroupsMap) {
-          let cx = 0,
-            cy = 0,
-            cz = 0;
-          for (const c of clusters) {
-            const pos = lonLatToModel(
-              parseFloat(c.longitude),
-              parseFloat(c.latitude),
-            );
-            cx += pos.x;
-            cy += pos.y;
-            cz += pos.z;
-          }
-          const n = clusters.length;
-          tourPoints.push({
-            position: new THREE.Vector3(cx / n, cy / n + 2, cz / n),
-            name: prov,
-          });
+          const pts = clusters.map((c) =>
+            lonLatToModel(parseFloat(c.longitude), parseFloat(c.latitude)),
+          );
+          const { target, cameraPosition } = computeTourView(pts);
+          tourPoints.push({ position: target, cameraPosition, name: prov });
         }
       })
       .then(() => {
