@@ -359,10 +359,6 @@ export function DistributionMap({
       textureLoader.loadAsync("/nv-marker.png"),
       textureLoader.loadAsync("/both-marker.png"),
     ]).then(([chinese, nv, both]) => {
-      for (const t of [chinese, nv, both]) {
-        t.premultiplyAlpha = true;
-        t.needsUpdate = true;
-      }
       return { chinese, nv, both };
     });
 
@@ -399,8 +395,11 @@ export function DistributionMap({
             transparent: true,
             toneMapped: false,
             sizeAttenuation: false,
+            depthWrite: false,
+            alphaTest: 0.1,
           });
           const sprite = new THREE.Sprite(spriteMat);
+          sprite.renderOrder = 10;
           sprite.center.set(0.5, 0);
           sprite.position.set(pos.x, pos.y, pos.z);
           sprite.scale.set(MARKER_SIZE, MARKER_SIZE, 1);
