@@ -360,7 +360,7 @@ export function DistributionMap({
       textureLoader.loadAsync("/both-marker.png"),
     ]).then(([chinese, nv, both]) => {
       for (const t of [chinese, nv, both]) {
-        t.premultiplyAlpha = false;
+        t.premultiplyAlpha = true;
         t.needsUpdate = true;
       }
       return { chinese, nv, both };
@@ -387,6 +387,7 @@ export function DistributionMap({
           });
         }
 
+        const MARKER_SIZE = 0.08;
         for (const item of realData) {
           const pos = lonLatToModel(
             parseFloat(item.longitude),
@@ -397,10 +398,13 @@ export function DistributionMap({
             map: texture,
             transparent: true,
             toneMapped: false,
+            sizeAttenuation: false,
           });
           const sprite = new THREE.Sprite(spriteMat);
-          sprite.position.set(pos.x, 1, pos.z);
-          sprite.scale.set(1, 1, 1);
+          sprite.center.set(0.5, 0);
+          sprite.position.set(pos.x, pos.y, pos.z);
+          sprite.scale.set(MARKER_SIZE, MARKER_SIZE, 1);
+          sprite.userData.bouncePhase = Math.random() * Math.PI * 2;
           scene.add(sprite);
           const arr = dataPointsByProvince.get(item.region_prov);
           if (arr) arr.push(sprite);
@@ -432,11 +436,15 @@ export function DistributionMap({
 
       mixer?.update(delta);
 
-      const pulse = 0.9 + 0.2 * Math.sin(timestamp * 0.003);
+      const BOUNCE_HEIGHT = 0.2;
+      const BOUNCE_SPEED = 0.004;
       for (const sprites of dataPointsByProvince.values()) {
         for (const pt of sprites) {
           if ((pt.material as THREE.SpriteMaterial).opacity > 0) {
-            pt.scale.set(1.2 * pulse, 1.4 * pulse, 1);
+            const phase = pt.userData.bouncePhase || 0;
+            const bounce =
+              Math.abs(Math.sin(timestamp * BOUNCE_SPEED + phase)) ** 0.6;
+            pt.position.y = 1 + bounce * BOUNCE_HEIGHT;
           }
         }
       }
