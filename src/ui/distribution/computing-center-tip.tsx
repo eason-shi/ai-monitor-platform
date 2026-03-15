@@ -55,7 +55,7 @@ export function ComputingCenterTip({
 
   return (
     <div
-      className="absolute left-[58%] top-[55%] flex flex-col overflow-hidden z-10 rounded-lg"
+      className="absolute left-[58%] top-[55%] flex flex-col z-10 rounded-lg"
       data-phase={phase}
       onAnimationEnd={handleAnimationEnd}
       style={{
@@ -67,41 +67,20 @@ export function ComputingCenterTip({
     >
       <span className="cct-border" />
 
-      <div className="cct-header flex items-center justify-between h-12 bg-linear-to-r from-[#0058A2] from-[1.65%] to-[rgba(0,61,89,0)] to-[96.88%] px-5 shrink-0 rounded-t-lg">
+      <div className="cct-header items-center justify-between bg-linear-to-r from-[#0058A2] from-[1.65%] to-[rgba(0,61,89,0)] to-[96.88%] px-5 py-6 shrink-0 rounded-t-lg">
         <div className="flex items-center gap-x-4">
           <img src="/widget-title-icon.svg" />
-          <span
-            className="text-xl text-white italic"
-            style={{
-              fontFamily: '"MiSans", sans-serif',
-              letterSpacing: "2.74px",
-            }}
-          >
-            {cached.province} · 智算中心
-          </span>
-        </div>
-        <div className="flex items-center gap-x-6 text-sm text-white/80">
-          <span>
-            中心数量：
-            <span className="text-cyan-300 font-medium">
-              {cached.clusters.length}
-            </span>
-          </span>
-          <span>
-            总卡数：
-            <span className="text-cyan-300 font-medium">
-              {cached.totalCards.toLocaleString()}
-            </span>
-          </span>
+          <span className="text-2xl text-white italic">超大规模智算集群</span>
+          <span className="text-4xl text-white">{cached.province}</span>
         </div>
       </div>
 
-      <div className="cct-content flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6 rounded-b-lg">
+      <div className="cct-content min-h-0 bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6 rounded-b-lg">
         <div className="grid grid-cols-3 gap-4">
           {cached.clusters.map((c, index) => (
             <div
               key={c.id}
-              className="cct-card rounded-lg border border-slate-600/60 bg-slate-800/50 p-5 transition-colors hover:border-cyan-400/60 hover:shadow-[0_0_12px_rgba(34,211,238,0.15)]"
+              className="w-[520px] h-[160px] cct-card rounded-lg border border-slate-600/60 bg-slate-800/50 p-5 transition-colors hover:border-cyan-400/60 hover:shadow-[0_0_12px_rgba(34,211,238,0.15)]"
               style={{
                 animationDelay:
                   phase === "entering"

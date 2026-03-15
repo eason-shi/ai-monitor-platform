@@ -350,7 +350,7 @@ export function DistributionMap({
 
       onProvinceChangeRef.current?.(first.name);
       onTipVisibleChangeRef.current?.(true);
-      dwellTimer = setTimeout(() => transitionToNext(), DWELL_TIME);
+      // dwellTimer = setTimeout(() => transitionToNext(), DWELL_TIME);
     }
 
     const textureLoader = new THREE.TextureLoader();
