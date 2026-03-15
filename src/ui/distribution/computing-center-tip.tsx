@@ -55,7 +55,7 @@ export function ComputingCenterTip({
 
   return (
     <div
-      className="absolute left-[58%] top-[55%] flex flex-col z-10 rounded-lg"
+      className="absolute left-[58%] top-[55%] flex flex-col z-10 rounded-lg overflow-visible w-max"
       data-phase={phase}
       onAnimationEnd={handleAnimationEnd}
       style={{
@@ -75,8 +75,8 @@ export function ComputingCenterTip({
         </div>
       </div>
 
-      <div className="cct-content min-h-0 bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6 rounded-b-lg">
-        <div className="grid grid-cols-3 gap-4">
+      <div className="cct-content bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6 rounded-b-lg">
+        <div className={`grid ${cached.clusters.length >= 2 ? "grid-cols-2" : "grid-cols-1"} gap-4`}>
           {cached.clusters.map((c, index) => (
             <div
               key={c.id}
