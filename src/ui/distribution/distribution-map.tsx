@@ -7,26 +7,20 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { realData } from "./computing-center-data";
 import { loadGlbModel } from "./glb-loader";
 
-function loadSvgTexture(
-  url: string,
-  size: number,
-): Promise<THREE.CanvasTexture> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0, size, size);
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.premultiplyAlpha = false;
-      texture.needsUpdate = true;
-      resolve(texture);
-    };
-    img.onerror = reject;
-    img.src = url;
-  });
+function getMarkerByColonyType(
+  colony_type: string,
+  textures: Record<string, THREE.Texture>,
+): THREE.Texture {
+  switch (colony_type) {
+    case "全国产卡":
+      return textures.chinese;
+    case "NV+国产":
+      return textures.both;
+    case "全NV卡":
+    case "NV+AMD":
+    default:
+      return textures.nv;
+  }
 }
 
 interface TourPoint {
@@ -126,7 +120,7 @@ export function DistributionMap({
 
     let mixer: THREE.AnimationMixer | null = null;
     const dataPoints: THREE.Sprite[] = [];
-    let markerTexture: THREE.CanvasTexture | null = null;
+    let markerTextures: Record<string, THREE.Texture> | null = null;
     const tourPoints: TourPoint[] = [];
     const provinceMeshes: THREE.Object3D[] = [];
 
@@ -250,9 +244,22 @@ export function DistributionMap({
       dwellTimer = setTimeout(() => transitionToNext(), DWELL_TIME);
     }
 
-    Promise.all([loadGlbModel(gltfLoader), loadSvgTexture("/marker.svg", 128)])
-      .then(([gltf, texture]) => {
-        markerTexture = texture;
+    const textureLoader = new THREE.TextureLoader();
+    const loadTextures = Promise.all([
+      textureLoader.loadAsync("/chinese-marker.png"),
+      textureLoader.loadAsync("/nv-marker.png"),
+      textureLoader.loadAsync("/both-marker.png"),
+    ]).then(([chinese, nv, both]) => {
+      for (const t of [chinese, nv, both]) {
+        t.premultiplyAlpha = false;
+        t.needsUpdate = true;
+      }
+      return { chinese, nv, both };
+    });
+
+    Promise.all([loadGlbModel(gltfLoader), loadTextures])
+      .then(([gltf, textures]) => {
+        markerTextures = textures;
 
         const model = gltf.scene;
         scene.add(model);
@@ -266,7 +273,7 @@ export function DistributionMap({
         const provinceChildren = gltf.scene.children[1]?.children ?? [];
         for (const child of provinceChildren) {
           provinceMeshes.push(child);
-          child.traverse((obj) => {
+          child.traverse((obj: THREE.Object3D) => {
             obj.userData.provinceName = child.name;
           });
         }
@@ -276,9 +283,11 @@ export function DistributionMap({
             parseFloat(item.longitude),
             parseFloat(item.latitude),
           );
+          const texture = getMarkerByColonyType(item.colony_type, textures);
           const spriteMat = new THREE.SpriteMaterial({
             map: texture,
             transparent: true,
+            toneMapped: false,
           });
           const sprite = new THREE.Sprite(spriteMat);
           sprite.position.set(pos.x, 1, pos.z);
@@ -373,7 +382,9 @@ export function DistributionMap({
       cancelAnimationFrame(animationId);
       controls.dispose();
       dracoLoader.dispose();
-      markerTexture?.dispose();
+      if (markerTextures) {
+        Object.values(markerTextures).forEach((t) => t.dispose());
+      }
       scene.traverse((obj) => {
         if (obj instanceof THREE.Mesh) {
           obj.geometry.dispose();
