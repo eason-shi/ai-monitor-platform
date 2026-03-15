@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { realData } from "./computing-center-data";
+import { ComputingCenterCardItem } from "./computing-center-card-item";
 
 interface ComputingCenterTipProps {
   province: string | null;
@@ -76,43 +77,19 @@ export function ComputingCenterTip({
       </div>
 
       <div className="cct-content bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6 rounded-b-lg">
-        <div className={`grid ${cached.clusters.length >= 2 ? "grid-cols-2" : "grid-cols-1"} gap-4`}>
+        <div
+          className={`grid ${cached.clusters.length >= 2 ? "grid-cols-2" : "grid-cols-1"} gap-4`}
+        >
           {cached.clusters.map((c, index) => (
-            <div
+            <ComputingCenterCardItem
               key={c.id}
-              className="w-[520px] h-[160px] cct-card rounded-lg border border-slate-600/60 bg-slate-800/50 p-5 transition-colors hover:border-cyan-400/60 hover:shadow-[0_0_12px_rgba(34,211,238,0.15)]"
-              style={{
-                animationDelay:
-                  phase === "entering"
-                    ? `${600 + index * 80}ms`
-                    : `${(cached.clusters.length - 1 - index) * 60}ms`,
-              }}
-            >
-              <div
-                className="text-lg text-white font-semibold mb-3"
-                style={{
-                  fontFamily: '"MiSans", sans-serif',
-                }}
-              >
-                {c.cluster_name}
-              </div>
-              <div className="space-y-2 text-sm text-white/70">
-                <div className="flex justify-between">
-                  <span>所在区域</span>
-                  <span className="text-white/90">{c.region_city}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>芯片类型</span>
-                  <span className="text-white/90">{c.chip_type}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>卡数量</span>
-                  <span className="text-cyan-300 font-medium">
-                    {parseInt(c.card_quantity, 10).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </div>
+              c={c}
+              delay={
+                phase === "entering"
+                  ? `${600 + index * 80}ms`
+                  : `${(cached.clusters.length - 1 - index) * 60}ms`
+              }
+            />
           ))}
         </div>
       </div>
