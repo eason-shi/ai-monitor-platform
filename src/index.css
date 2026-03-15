@@ -130,3 +130,137 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes cct-border-draw {
+  from { clip-path: inset(50% 50% 50% 50% round 8px); }
+  to { clip-path: inset(0 round 8px); }
+}
+
+@keyframes cct-border-erase {
+  from { clip-path: inset(0 round 8px); }
+  to { clip-path: inset(50% 50% 50% 50% round 8px); }
+}
+
+@keyframes cct-header-scan {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes cct-header-hide {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(0 100% 0 0); }
+}
+
+@keyframes cct-scan-line {
+  0% { left: 0%; opacity: 1; }
+  80% { left: 100%; opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+@keyframes cct-scan-line-exit {
+  0% { left: 100%; opacity: 1; }
+  80% { left: 0%; opacity: 1; }
+  100% { left: 0%; opacity: 0; }
+}
+
+@keyframes cct-content-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cct-content-hide {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes cct-card-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cct-card-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(20px); }
+}
+
+.cct-border {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(0, 206, 255, 0.6);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 6px rgba(0, 206, 255, 0.3);
+  pointer-events: none;
+  z-index: 1;
+  clip-path: inset(50% 50% 50% 50% round 8px);
+}
+
+.cct-header {
+  clip-path: inset(0 100% 0 0);
+  position: relative;
+}
+
+.cct-header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, #00ceff, transparent);
+  box-shadow: 0 0 8px 2px rgba(0, 206, 255, 0.4);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cct-content {
+  opacity: 0;
+}
+
+.cct-card {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+[data-phase="entering"] .cct-border {
+  animation: cct-border-draw 400ms ease-out forwards;
+}
+
+[data-phase="entering"] .cct-header {
+  animation: cct-header-scan 400ms ease-out 200ms forwards;
+}
+
+[data-phase="entering"] .cct-header::after {
+  animation: cct-scan-line 400ms ease-out 200ms forwards;
+}
+
+[data-phase="entering"] .cct-content {
+  animation: cct-content-reveal 400ms ease-out 400ms forwards;
+}
+
+[data-phase="entering"] .cct-card {
+  animation: cct-card-in 300ms ease-out forwards;
+}
+
+[data-phase="exiting"] .cct-border {
+  clip-path: inset(0 round 8px);
+  animation: cct-border-erase 400ms ease-in 300ms forwards;
+}
+
+[data-phase="exiting"] .cct-header {
+  clip-path: inset(0 0 0 0);
+  animation: cct-header-hide 300ms ease-in 200ms forwards;
+}
+
+[data-phase="exiting"] .cct-header::after {
+  animation: cct-scan-line-exit 300ms ease-in 200ms forwards;
+}
+
+[data-phase="exiting"] .cct-content {
+  opacity: 1;
+  animation: cct-content-hide 300ms ease-in 200ms forwards;
+}
+
+[data-phase="exiting"] .cct-card {
+  opacity: 1;
+  transform: translateY(0);
+  animation: cct-card-out 250ms ease-in forwards;
+}

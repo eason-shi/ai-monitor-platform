@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import { realData } from "./computing-center-data";
 
 interface ComputingCenterTipProps {
@@ -5,35 +6,68 @@ interface ComputingCenterTipProps {
   visible: boolean;
 }
 
+interface CachedData {
+  province: string;
+  clusters: typeof realData;
+  totalCards: number;
+}
+
 export function ComputingCenterTip({
   province,
   visible,
 }: ComputingCenterTipProps) {
-  if (!province) return null;
-
-  const clusters = realData.filter((c) => c.region_prov === province);
-  if (clusters.length === 0) return null;
-
-  const totalCards = clusters.reduce(
-    (sum, c) => sum + parseInt(c.card_quantity, 10),
-    0,
+  const [phase, setPhase] = useState<"hidden" | "entering" | "exiting">(
+    "hidden",
   );
+  const [cached, setCached] = useState<CachedData | null>(null);
+  const [prevVisible, setPrevVisible] = useState(visible);
+  const [prevProvince, setPrevProvince] = useState(province);
+
+  if (visible !== prevVisible || province !== prevProvince) {
+    setPrevVisible(visible);
+    setPrevProvince(province);
+    if (visible && province) {
+      const clusters = realData.filter((c) => c.region_prov === province);
+      if (clusters.length > 0) {
+        const totalCards = clusters.reduce(
+          (sum, c) => sum + parseInt(c.card_quantity, 10),
+          0,
+        );
+        setCached({ province, clusters, totalCards });
+        setPhase("entering");
+      }
+    } else if (!visible && phase === "entering") {
+      setPhase("exiting");
+    }
+  }
+
+  const handleAnimationEnd = useCallback(
+    (e: React.AnimationEvent) => {
+      if (phase === "exiting" && e.target === e.currentTarget) {
+        setPhase("hidden");
+        setCached(null);
+      }
+    },
+    [phase],
+  );
+
+  if (phase === "hidden" || !cached) return null;
 
   return (
     <div
-      className="absolute left-[58%] top-[55%] flex flex-col overflow-hidden z-10"
+      className="absolute left-[58%] top-[55%] flex flex-col overflow-hidden z-10 rounded-lg"
+      data-phase={phase}
+      onAnimationEnd={handleAnimationEnd}
       style={{
-        transform: visible ? "scale(1)" : "scale(0.85)",
-        transition: "transform 1500ms cubic-bezier(0.65, 0, 0.35, 1)",
+        animation:
+          phase === "exiting"
+            ? "cct-content-hide 800ms ease-in forwards"
+            : undefined,
       }}
     >
-      <div
-        className="flex items-center justify-between h-12 bg-linear-to-r from-[#0058A2] from-[1.65%] to-[rgba(0,61,89,0)] to-[96.88%] px-5 shrink-0"
-        style={{
-          opacity: visible ? 1 : 0,
-          transition: "opacity 1500ms cubic-bezier(0.65, 0, 0.35, 1)",
-        }}
-      >
+      <span className="cct-border" />
+
+      <div className="cct-header flex items-center justify-between h-12 bg-linear-to-r from-[#0058A2] from-[1.65%] to-[rgba(0,61,89,0)] to-[96.88%] px-5 shrink-0 rounded-t-lg">
         <div className="flex items-center gap-x-4">
           <img src="/widget-title-icon.svg" />
           <span
@@ -43,35 +77,37 @@ export function ComputingCenterTip({
               letterSpacing: "2.74px",
             }}
           >
-            {province} · 智算中心
+            {cached.province} · 智算中心
           </span>
         </div>
         <div className="flex items-center gap-x-6 text-sm text-white/80">
           <span>
             中心数量：
-            <span className="text-cyan-300 font-medium">{clusters.length}</span>
+            <span className="text-cyan-300 font-medium">
+              {cached.clusters.length}
+            </span>
           </span>
           <span>
             总卡数：
             <span className="text-cyan-300 font-medium">
-              {totalCards.toLocaleString()}
+              {cached.totalCards.toLocaleString()}
             </span>
           </span>
         </div>
       </div>
 
-      <div
-        className="flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6"
-        style={{
-          opacity: visible ? 1 : 0,
-          transition: "opacity 1500ms cubic-bezier(0.65, 0, 0.35, 1)",
-        }}
-      >
+      <div className="cct-content flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6 rounded-b-lg">
         <div className="grid grid-cols-3 gap-4">
-          {clusters.map((c) => (
+          {cached.clusters.map((c, index) => (
             <div
               key={c.id}
-              className="rounded-lg border border-slate-600/60 bg-slate-800/50 p-5 transition-colors hover:border-cyan-400/60 hover:shadow-[0_0_12px_rgba(34,211,238,0.15)]"
+              className="cct-card rounded-lg border border-slate-600/60 bg-slate-800/50 p-5 transition-colors hover:border-cyan-400/60 hover:shadow-[0_0_12px_rgba(34,211,238,0.15)]"
+              style={{
+                animationDelay:
+                  phase === "entering"
+                    ? `${600 + index * 80}ms`
+                    : `${(cached.clusters.length - 1 - index) * 60}ms`,
+              }}
             >
               <div
                 className="text-lg text-white font-semibold mb-3"
