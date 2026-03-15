@@ -444,7 +444,7 @@ export function DistributionMap({
             const phase = pt.userData.bouncePhase || 0;
             const bounce =
               Math.abs(Math.sin(timestamp * BOUNCE_SPEED + phase)) ** 0.6;
-            pt.position.y = 1 + bounce * BOUNCE_HEIGHT;
+            pt.position.y = bounce * BOUNCE_HEIGHT;
           }
         }
       }
