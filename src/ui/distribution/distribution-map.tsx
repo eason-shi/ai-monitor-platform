@@ -446,6 +446,39 @@ export function DistributionMap({
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
+    let highlightedMeshes: {
+      mesh: THREE.Mesh;
+      originalMaterial: THREE.Material;
+    }[] = [];
+
+    function resetHighlight() {
+      for (const { mesh, originalMaterial } of highlightedMeshes) {
+        (mesh.material as THREE.Material).dispose();
+        mesh.material = originalMaterial;
+      }
+      highlightedMeshes = [];
+    }
+
+    function highlightProvince(obj: THREE.Object3D) {
+      resetHighlight();
+      obj.traverse((child) => {
+        if (!(child instanceof THREE.Mesh)) return;
+        const originalMaterial = child.material;
+        const mat = (child.material as THREE.MeshStandardMaterial).clone();
+        child.material = mat;
+        mat.emissive = new THREE.Color(0x00ceff);
+        const state = { intensity: 0 };
+        const fadeIn = new TWEEN.Tween(state, tweenGroup)
+          .to({ intensity: 0.6 }, 150)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .onUpdate(() => {
+            mat.emissiveIntensity = state.intensity;
+          });
+        fadeIn.start();
+        highlightedMeshes.push({ mesh: child, originalMaterial });
+      });
+    }
+
     const handleClick = (event: MouseEvent) => {
       if (mode !== "free") return;
 
@@ -460,6 +493,10 @@ export function DistributionMap({
         if (provinceName) {
           onProvinceChangeRef.current?.(provinceName);
           onTipVisibleChangeRef.current?.(true);
+          const provinceObj = provinceMeshes.find(
+            (m) => m.userData.provinceName === provinceName,
+          );
+          if (provinceObj) highlightProvince(provinceObj);
         }
       }
     };
@@ -510,6 +547,7 @@ export function DistributionMap({
 
     const handleMouseLeave = () => {
       mode = "touring";
+      resetHighlight();
       onModeChangeRef.current?.("touring");
       onTipVisibleChangeRef.current?.(false);
 
@@ -550,6 +588,7 @@ export function DistributionMap({
 
     return () => {
       if (dwellTimer) clearTimeout(dwellTimer);
+      resetHighlight();
       tweenGroup.removeAll();
       renderer.domElement.removeEventListener("click", handleClick);
       renderer.domElement.removeEventListener("mouseenter", handleMouseEnter);
