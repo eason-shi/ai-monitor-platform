@@ -6,6 +6,7 @@ import { ChipShareChart } from "./chip-share";
 import { BuildingPowerChart } from "./building-power";
 import { DistributionMap } from "./distribution-map";
 import { ComputingCenterTip } from "./computing-center-tip";
+import { MapModeIndicator } from "./map-mode-indicator";
 
 export function PowerDistribution() {
   const [province, setProvince] = useState<string | null>(null);
@@ -50,7 +51,14 @@ export function PowerDistribution() {
             onModeChange={setMapMode}
           />
 
-          <ComputingCenterTip province={province} visible={tipVisible} mode={mapMode} />
+          <MapModeIndicator mode={mapMode} />
+
+          <ComputingCenterTip
+            province={province}
+            visible={tipVisible}
+            mode={mapMode}
+          />
+          
         </div>
 
         <div className="h-[280px]"></div>

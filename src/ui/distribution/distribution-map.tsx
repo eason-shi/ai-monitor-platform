@@ -579,5 +579,5 @@ export function DistributionMap({
     };
   }, []);
 
-  return <div ref={containerRef} className="w-full h-full" />;
+  return <div ref={containerRef} className="w-full h-full cursor-pointer" />;
 }
