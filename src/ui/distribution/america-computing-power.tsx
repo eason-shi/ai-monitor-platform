@@ -8,8 +8,8 @@ const colors = ["#6366f1", "#22c55e", "#f59e0b"];
 
 export function AmericaComputingPower() {
   return (
-    <div className="flex items-center gap-8">
-      <img src="/america.png" alt="美国" className="w-[280px] h-[200px]" />
+    <div className="flex items-center gap-8 w-full h-full">
+      <img src="/america.png" alt="美国" className="flex-1" />
       <div className="flex flex-col gap-3">
         {data.map((item, index) => (
           <div key={item.operator} className="flex items-center gap-3">

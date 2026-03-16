@@ -7,7 +7,11 @@ import { BuildingPowerChart } from "./building-power";
 import { DistributionMap } from "./distribution-map";
 import { ComputingCenterTip } from "./computing-center-tip";
 import { MapModeIndicator } from "./map-mode-indicator";
-import { ChineseChipCountIcon } from "./chip-count-icon";
+import {
+  ChineseChipCountIcon,
+  MixedChipCountIcon,
+  NvChipCountIcon,
+} from "./chip-count-icon";
 import { ChinaComputingPower } from "./china-computing-power";
 import { AmericaComputingPower } from "./america-computing-power";
 
@@ -65,7 +69,9 @@ export function PowerDistribution() {
 
         <div className="h-[280px] flex">
           <div className="flex">
+            <NvChipCountIcon />
             <ChineseChipCountIcon />
+            <MixedChipCountIcon />
           </div>
         </div>
       </div>
