@@ -460,7 +460,6 @@ export function DistributionMap({
         if (provinceName) {
           onProvinceChangeRef.current?.(provinceName);
           onTipVisibleChangeRef.current?.(true);
-          fadeMarkers(provinceName);
         }
       }
     };

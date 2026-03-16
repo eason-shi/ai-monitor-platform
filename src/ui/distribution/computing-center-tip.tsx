@@ -62,7 +62,7 @@ export function ComputingCenterTip({
 
   return (
     <div
-      className="absolute left-[58%] top-[55%] flex flex-col z-10 rounded-lg overflow-visible w-max"
+      className="absolute left-[58%] top-[55%] flex flex-col z-10 rounded-lg overflow-visible w-max pointer-events-none"
       data-phase={phase}
       onAnimationEnd={handleAnimationEnd}
       style={{
