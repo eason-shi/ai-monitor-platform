@@ -7,11 +7,7 @@ import { BuildingPowerChart } from "./building-power";
 import { DistributionMap } from "./distribution-map";
 import { ComputingCenterTip } from "./computing-center-tip";
 import { MapModeIndicator } from "./map-mode-indicator";
-import {
-  ChineseChipCountIcon,
-  MixedChipCountIcon,
-  NvChipCountIcon,
-} from "./chip-count-icon";
+
 import { ChinaComputingPower } from "./china-computing-power";
 import { AmericaComputingPower } from "./america-computing-power";
 import { TotalInfoItem } from "./total-info-item";
@@ -26,7 +22,7 @@ export function PowerDistribution() {
   const [mapMode, setMapMode] = useState<"touring" | "free">("touring");
 
   return (
-    <div className="w-full h-full flex gap-3 px-3 py-20">
+    <div className="w-full h-full flex gap-3 px-3 py-10">
       <div className="w-[22%] flex flex-col gap-3 justify-between">
         <div className="flex-1 min-h-0">
           <WidgetContainer title="各省份已建成智算算力规模">
