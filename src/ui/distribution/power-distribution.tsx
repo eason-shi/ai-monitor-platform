@@ -15,6 +15,9 @@ import {
 import { ChinaComputingPower } from "./china-computing-power";
 import { AmericaComputingPower } from "./america-computing-power";
 import { TotalInfoItem } from "./total-info-item";
+import { ChipCountInfo } from "./chip-count-info";
+import { DescriptionInfo } from "./description-info";
+import { TotalComputingInfo } from "./total-computing-info";
 
 export function PowerDistribution() {
   const [province, setProvince] = useState<string | null>(null);
@@ -72,12 +75,10 @@ export function PowerDistribution() {
           />
         </div>
 
-        <div className="h-[280px] flex">
-          <div className="flex">
-            <NvChipCountIcon />
-            <ChineseChipCountIcon />
-            <MixedChipCountIcon />
-          </div>
+        <div className="h-[280px] flex justify-between">
+          <ChipCountInfo />
+          <DescriptionInfo />
+          <TotalComputingInfo />
         </div>
       </div>
 
