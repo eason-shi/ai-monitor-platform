@@ -7,7 +7,7 @@ export const Route = createRootRoute({
 
 function Index() {
   return (
-    <div className="bg-[#01152f] w-[3200px] h-[1800px] relative px-14 pb-16 pt-36">
+    <div className="bg-[url('/bg.png')] bg-cover bg-center bg-no-repeat w-[3200px] h-[1800px] relative px-14 pb-16 pt-36">
       <BaseHeader />
       <Outlet />
     </div>
