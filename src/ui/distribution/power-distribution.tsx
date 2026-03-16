@@ -7,6 +7,9 @@ import { BuildingPowerChart } from "./building-power";
 import { DistributionMap } from "./distribution-map";
 import { ComputingCenterTip } from "./computing-center-tip";
 import { MapModeIndicator } from "./map-mode-indicator";
+import { ChineseChipCountIcon } from "./chip-count-icon";
+import { ChinaComputingPower } from "./china-computing-power";
+import { AmericaComputingPower } from "./america-computing-power";
 
 export function PowerDistribution() {
   const [province, setProvince] = useState<string | null>(null);
@@ -58,22 +61,25 @@ export function PowerDistribution() {
             visible={tipVisible}
             mode={mapMode}
           />
-          
         </div>
 
-        <div className="h-[280px]"></div>
+        <div className="h-[280px] flex">
+          <div className="flex">
+            <ChineseChipCountIcon />
+          </div>
+        </div>
       </div>
 
       <div className="w-[22%] flex flex-col gap-3 justify-between">
         <div className="flex-1 min-h-0">
           <WidgetContainer title="中国算力服务结构">
-            <div />
+            <ChinaComputingPower />
           </WidgetContainer>
         </div>
 
         <div className="flex-1 min-h-0">
           <WidgetContainer title="美国算力服务结构">
-            <div />
+            <AmericaComputingPower />
           </WidgetContainer>
         </div>
 

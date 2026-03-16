@@ -2,16 +2,16 @@ import type { EChartsOption } from "echarts";
 import { EchartsWidget } from "../echarts-widget";
 
 const data = [
-  { province: "河北", value: 82 },
-  { province: "云贵", value: 45 },
-  { province: "上海", value: 38 },
-  { province: "广东", value: 118 },
-  { province: "浙江", value: 95 },
-  { province: "内蒙古", value: 58 },
-  { province: "宁夏", value: 15 },
-  { province: "安徽", value: 72 },
-  { province: "北京", value: 28 },
-  { province: "江苏", value: 119 },
+  { province: "河北", value: 249 },
+  { province: "贵州", value: 100.9 },
+  { province: "上海", value: 75.1 },
+  { province: "广东", value: 67 },
+  { province: "浙江", value: 64.3 },
+  { province: "江苏", value: 60 },
+  { province: "内蒙古", value: 59.2 },
+  { province: "宁夏", value: 44.8 },
+  { province: "安徽", value: 44.6 },
+  { province: "北京", value: 38.1 },
 ];
 
 const options: EChartsOption = {
