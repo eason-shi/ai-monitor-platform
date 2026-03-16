@@ -139,6 +139,11 @@ for (const item of realData) {
   else provinceGroupsMap.set(item.region_prov, [item]);
 }
 
+const DWELL_TIME = 4000;
+const TRANSITION_TIME = 1500;
+const OVERVIEW_POS = { x: 0, y: 24, z: 14 };
+const OVERVIEW_TARGET = { x: 0, y: 0, z: -1 };
+
 export function DistributionMap({
   onProvinceChange,
   onTipVisibleChange,
@@ -164,7 +169,7 @@ export function DistributionMap({
     const { clientWidth: width, clientHeight: height } = container;
 
     const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 200);
-    camera.position.set(0, 28, 16);
+    camera.position.set(0, OVERVIEW_POS.y, OVERVIEW_POS.z);
     camera.lookAt(0, 0, -1);
 
     const renderer = new THREE.WebGLRenderer({
@@ -209,10 +214,6 @@ export function DistributionMap({
     const tourPoints: TourPoint[] = [];
     const provinceMeshes: THREE.Object3D[] = [];
 
-    const DWELL_TIME = 4000;
-    const TRANSITION_TIME = 1500;
-    const OVERVIEW_POS = { x: 0, y: 28, z: 16 };
-    const OVERVIEW_TARGET = { x: 0, y: 0, z: -1 };
     const tweenGroup = new TWEEN.Group();
     let currentTourIndex = 0;
     let dwellTimer: ReturnType<typeof setTimeout> | null = null;
