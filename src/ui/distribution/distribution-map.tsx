@@ -112,6 +112,7 @@ function computeTourView(points: { x: number; y: number; z: number }[]): {
 interface DistributionMapProps {
   onProvinceChange?: (name: string) => void;
   onTipVisibleChange?: (visible: boolean) => void;
+  onModeChange?: (mode: "touring" | "free") => void;
 }
 
 function lonLatToModel(lon: number, lat: number) {
@@ -141,14 +142,17 @@ for (const item of realData) {
 export function DistributionMap({
   onProvinceChange,
   onTipVisibleChange,
+  onModeChange,
 }: DistributionMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const onProvinceChangeRef = useRef(onProvinceChange);
   const onTipVisibleChangeRef = useRef(onTipVisibleChange);
+  const onModeChangeRef = useRef(onModeChange);
   useEffect(() => {
     onProvinceChangeRef.current = onProvinceChange;
     onTipVisibleChangeRef.current = onTipVisibleChange;
+    onModeChangeRef.current = onModeChange;
   });
 
   useEffect(() => {
@@ -212,6 +216,7 @@ export function DistributionMap({
     const tweenGroup = new TWEEN.Group();
     let currentTourIndex = 0;
     let dwellTimer: ReturnType<typeof setTimeout> | null = null;
+    let mode: "touring" | "free" = "touring";
 
     function fadeMarkers(targetProvince: string | null) {
       for (const [prov, sprites] of dataPointsByProvince) {
@@ -232,6 +237,7 @@ export function DistributionMap({
     }
 
     function transitionToNext() {
+      if (mode === "free") return;
       const nextIndex = currentTourIndex % tourPoints.length;
       const nextPoint = tourPoints[nextIndex];
       currentTourIndex = nextIndex + 1;
@@ -441,6 +447,8 @@ export function DistributionMap({
     const mouse = new THREE.Vector2();
 
     const handleClick = (event: MouseEvent) => {
+      if (mode !== "free") return;
+
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -448,20 +456,105 @@ export function DistributionMap({
       raycaster.setFromCamera(mouse, camera);
       const intersects = raycaster.intersectObjects(provinceMeshes, true);
       if (intersects.length > 0) {
-        console.log(intersects[0].object.parent?.name);
-        // const provinceName = intersects[0].object.userData.provinceName;
-        // if (provinceName) {
-        //   console.log(provinceName);
-        // }
+        const provinceName = intersects[0].object.userData.provinceName;
+        if (provinceName) {
+          onProvinceChangeRef.current?.(provinceName);
+          onTipVisibleChangeRef.current?.(true);
+          fadeMarkers(provinceName);
+        }
       }
     };
 
     renderer.domElement.addEventListener("click", handleClick);
 
+    const handleMouseEnter = () => {
+      mode = "free";
+      onModeChangeRef.current?.("free");
+      if (dwellTimer) {
+        clearTimeout(dwellTimer);
+        dwellTimer = null;
+      }
+      tweenGroup.removeAll();
+
+      const state = {
+        camX: camera.position.x,
+        camY: camera.position.y,
+        camZ: camera.position.z,
+        targetX: controls.target.x,
+        targetY: controls.target.y,
+        targetZ: controls.target.z,
+      };
+      new TWEEN.Tween(state, tweenGroup)
+        .to(
+          {
+            camX: OVERVIEW_POS.x,
+            camY: OVERVIEW_POS.y,
+            camZ: OVERVIEW_POS.z,
+            targetX: OVERVIEW_TARGET.x,
+            targetY: OVERVIEW_TARGET.y,
+            targetZ: OVERVIEW_TARGET.z,
+          },
+          TRANSITION_TIME,
+        )
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .onUpdate(() => {
+          camera.position.set(state.camX, state.camY, state.camZ);
+          controls.target.set(state.targetX, state.targetY, state.targetZ);
+          controls.update();
+        })
+        .onComplete(() => {
+          fadeMarkers(null);
+        })
+        .start();
+      onTipVisibleChangeRef.current?.(false);
+    };
+
+    const handleMouseLeave = () => {
+      mode = "touring";
+      onModeChangeRef.current?.("touring");
+      onTipVisibleChangeRef.current?.(false);
+
+      const state = {
+        camX: camera.position.x,
+        camY: camera.position.y,
+        camZ: camera.position.z,
+        targetX: controls.target.x,
+        targetY: controls.target.y,
+        targetZ: controls.target.z,
+      };
+      new TWEEN.Tween(state, tweenGroup)
+        .to(
+          {
+            camX: OVERVIEW_POS.x,
+            camY: OVERVIEW_POS.y,
+            camZ: OVERVIEW_POS.z,
+            targetX: OVERVIEW_TARGET.x,
+            targetY: OVERVIEW_TARGET.y,
+            targetZ: OVERVIEW_TARGET.z,
+          },
+          TRANSITION_TIME,
+        )
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .onUpdate(() => {
+          camera.position.set(state.camX, state.camY, state.camZ);
+          controls.target.set(state.targetX, state.targetY, state.targetZ);
+          controls.update();
+        })
+        .onComplete(() => {
+          transitionToNext();
+        })
+        .start();
+    };
+
+    renderer.domElement.addEventListener("mouseenter", handleMouseEnter);
+    renderer.domElement.addEventListener("mouseleave", handleMouseLeave);
+
     return () => {
       if (dwellTimer) clearTimeout(dwellTimer);
       tweenGroup.removeAll();
       renderer.domElement.removeEventListener("click", handleClick);
+      renderer.domElement.removeEventListener("mouseenter", handleMouseEnter);
+      renderer.domElement.removeEventListener("mouseleave", handleMouseLeave);
       resizeObserver.disconnect();
       cancelAnimationFrame(animationId);
       controls.dispose();

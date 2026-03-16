@@ -10,6 +10,7 @@ import { ComputingCenterTip } from "./computing-center-tip";
 export function PowerDistribution() {
   const [province, setProvince] = useState<string | null>(null);
   const [tipVisible, setTipVisible] = useState(false);
+  const [mapMode, setMapMode] = useState<"touring" | "free">("touring");
 
   return (
     <div className="w-full h-full flex gap-3 px-3 py-20">
@@ -46,9 +47,10 @@ export function PowerDistribution() {
           <DistributionMap
             onProvinceChange={setProvince}
             onTipVisibleChange={setTipVisible}
+            onModeChange={setMapMode}
           />
 
-          <ComputingCenterTip province={province} visible={tipVisible} />
+          <ComputingCenterTip province={province} visible={tipVisible} mode={mapMode} />
         </div>
 
         <div className="h-[280px]"></div>

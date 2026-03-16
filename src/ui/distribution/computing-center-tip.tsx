@@ -5,6 +5,7 @@ import { ComputingCenterCardItem } from "./computing-center-card-item";
 interface ComputingCenterTipProps {
   province: string | null;
   visible: boolean;
+  mode: "touring" | "free";
 }
 
 interface CachedData {
@@ -16,6 +17,7 @@ interface CachedData {
 export function ComputingCenterTip({
   province,
   visible,
+  mode,
 }: ComputingCenterTipProps) {
   const [phase, setPhase] = useState<"hidden" | "entering" | "exiting">(
     "hidden",
@@ -34,8 +36,12 @@ export function ComputingCenterTip({
           (sum, c) => sum + parseInt(c.card_quantity, 10),
           0,
         );
-        setCached({ province, clusters, totalCards });
-        setPhase("entering");
+        if (mode === "free" && phase === "entering" && cached) {
+          setCached({ province, clusters, totalCards });
+        } else {
+          setCached({ province, clusters, totalCards });
+          setPhase("entering");
+        }
       }
     } else if (!visible && phase === "entering") {
       setPhase("exiting");
