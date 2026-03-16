@@ -1,5 +1,6 @@
 interface ModuleItemProps {
   active?: boolean;
+  isRight?: boolean;
   itemName: string;
   className?: string;
   onClick?: () => void;
@@ -7,10 +8,19 @@ interface ModuleItemProps {
 
 export function ModuleItem({
   active = false,
+  isRight = false,
   itemName,
   className,
   onClick,
 }: ModuleItemProps) {
+  const bgImage = isRight
+    ? active
+      ? "/module-active-bg-right.png"
+      : "/module-bg-right.png"
+    : active
+      ? "/module-active-bg.png"
+      : "/module-bg.png";
+
   return (
     <div
       onClick={onClick}
@@ -22,7 +32,7 @@ export function ModuleItem({
         ${className ?? ""}
       `}
       style={{
-        backgroundImage: `url(${active ? "/module-active-bg.png" : "/module-bg.png"})`,
+        backgroundImage: `url(${bgImage})`,
       }}
     >
       <span

@@ -18,7 +18,7 @@ export function BaseHeader() {
           人工智能产业发展监测平台
         </span>
       </div>
-      <div className="absolute left-[12%] top-1/2 -translate-y-1/2 flex gap-4">
+      <div className="absolute left-[10%] top-1/4 -translate-y-1/2 flex gap-4">
         <ModuleItem
           itemName="算力底座"
           active={isActive("/")}
@@ -30,15 +30,17 @@ export function BaseHeader() {
           onClick={() => navigate({ to: "/data" })}
         />
       </div>
-      <div className="absolute right-[12%] top-1/2 -translate-y-1/2 flex gap-4">
+      <div className="absolute right-[10%] top-1/4 -translate-y-1/2 flex gap-4">
         <ModuleItem
           itemName="大模型"
           active={isActive("/model")}
+          isRight={true}
           onClick={() => navigate({ to: "/model" })}
         />
         <ModuleItem
           itemName="知识图谱"
           active={isActive("/graph")}
+          isRight={true}
           onClick={() => navigate({ to: "/graph" })}
         />
       </div>
