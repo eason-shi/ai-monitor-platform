@@ -177,7 +177,7 @@ export function DistributionMap({
     renderer.setSize(width, height);
     container.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x4466aa, 2.5));
     const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
     dirLight.position.set(10, -10, 20);
     scene.add(dirLight);

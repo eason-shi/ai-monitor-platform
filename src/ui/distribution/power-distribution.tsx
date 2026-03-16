@@ -18,6 +18,7 @@ import { TotalInfoItem } from "./total-info-item";
 import { ChipCountInfo } from "./chip-count-info";
 import { DescriptionInfo } from "./description-info";
 import { TotalComputingInfo } from "./total-computing-info";
+import { ServiceCompare } from "./service-compare";
 
 export function PowerDistribution() {
   const [province, setProvince] = useState<string | null>(null);
@@ -97,13 +98,28 @@ export function PowerDistribution() {
 
         <div className="flex-1 min-h-0">
           <WidgetContainer title="服务供给方式对比">
-            <div />
+            <ServiceCompare />
           </WidgetContainer>
         </div>
 
         <div className="flex-1 min-h-0">
           <WidgetContainer title="算力服务分布对比">
-            <div />
+            <div className="w-full h-full flex p-2">
+              <div className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-white text-2xl">中国</span>
+                <img
+                  src="./china-computing.png"
+                  className="flex-1 min-h-0 object-contain"
+                />
+              </div>
+              <div className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-white text-2xl">美国</span>
+                <img
+                  src="./america-computing.png"
+                  className="flex-1 min-h-0 object-contain"
+                />
+              </div>
+            </div>
           </WidgetContainer>
         </div>
       </div>
