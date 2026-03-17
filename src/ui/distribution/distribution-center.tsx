@@ -16,9 +16,9 @@ export function DistributionCenter() {
     <div className="w-[56%] relative flex flex-col">
       <div className="flex-1 relative">
         <div className="absolute top-0 left-[22%] flex justify-center items-center gap-[180px]  bg-slate-900/90 rounded-lg px-6 py-3 ">
-          <TotalInfoItem title="324个" subTitle="项目总量" />
-          <TotalInfoItem title="1690EFlops" subTitle="智算总量" />
-          <TotalInfoItem title="43255张" subTitle="卡总量" />
+          <TotalInfoItem value={324} suffix="个" subTitle="项目总量" />
+          <TotalInfoItem value={1690} suffix="EFlops" subTitle="智算总量" />
+          <TotalInfoItem value={43255} suffix="张" subTitle="卡总量" />
         </div>
 
         <DistributionMap

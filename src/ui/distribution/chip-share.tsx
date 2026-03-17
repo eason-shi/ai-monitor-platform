@@ -8,11 +8,11 @@ const data = [
   { value: 40680, name: "海光信息" },
   { value: 39334, name: "寒武纪" },
   { value: 38320, name: "燧原" },
-  { value: 14440, name: "昆仑芯" },
-  { value: 11293, name: "沐曦" },
-  { value: 7573, name: "天数智芯" },
-  { value: 7360, name: "摩尔线程" },
-  { value: 5573, name: "壁仞" },
+  // { value: 14440, name: "昆仑芯" },
+  // { value: 11293, name: "沐曦" },
+  // { value: 7573, name: "天数智芯" },
+  // { value: 7360, name: "摩尔线程" },
+  // { value: 5573, name: "壁仞" },
 ];
 
 export function ChipShareChart() {
@@ -47,6 +47,10 @@ export function ChipShareChart() {
       series: [
         {
           type: "pie",
+          padAngle: 5,
+          itemStyle: {
+            borderRadius: 10,
+          },
           radius: ["40%", "70%"],
           center: ["35%", "50%"],
           label: {
@@ -58,7 +62,10 @@ export function ChipShareChart() {
           emphasis: {
             scale: true,
             scaleSize: 10,
-            itemStyle: { shadowBlur: 20, shadowColor: "rgba(99, 102, 241, 0.6)" },
+            itemStyle: {
+              shadowBlur: 20,
+              shadowColor: "rgba(99, 102, 241, 0.6)",
+            },
           },
           data,
         },

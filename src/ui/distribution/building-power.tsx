@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import type { EChartsOption } from "echarts";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import type { EChartsOption, ECharts } from "echarts";
 import { EchartsWidget } from "@/ui/echarts-widget";
 
 const data = [
@@ -15,7 +15,79 @@ const data = [
   { value: 800, name: "甘肃" },
 ];
 
+const HOLD_DURATION = 3000;
+
 export function BuildingPowerChart() {
+  const instanceRef = useRef<ECharts | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const currentIndexRef = useRef(0);
+  const loopRef = useRef<() => void>(undefined);
+
+  useEffect(() => {
+    loopRef.current = () => {
+      const chart = instanceRef.current;
+      if (!chart || chart.isDisposed()) return;
+
+      const prevIndex =
+        (currentIndexRef.current - 1 + data.length) % data.length;
+
+      chart.dispatchAction({
+        type: "downplay",
+        seriesIndex: 0,
+        dataIndex: prevIndex,
+      });
+      chart.dispatchAction({
+        type: "highlight",
+        seriesIndex: 0,
+        dataIndex: currentIndexRef.current,
+      });
+      chart.dispatchAction({
+        type: "showTip",
+        seriesIndex: 0,
+        dataIndex: currentIndexRef.current,
+      });
+
+      currentIndexRef.current = (currentIndexRef.current + 1) % data.length;
+      timerRef.current = setTimeout(() => loopRef.current?.(), HOLD_DURATION);
+    };
+  });
+
+  const onInstance = useCallback((inst: ECharts | null) => {
+    instanceRef.current = inst;
+    if (!inst) return;
+
+    inst.on("mouseover", (params) => {
+      clearTimeout(timerRef.current);
+      if (inst.isDisposed()) return;
+
+      inst.dispatchAction({ type: "downplay", seriesIndex: 0 });
+      inst.dispatchAction({
+        type: "highlight",
+        seriesIndex: 0,
+        dataIndex: params.dataIndex,
+      });
+      inst.dispatchAction({
+        type: "showTip",
+        seriesIndex: 0,
+        dataIndex: params.dataIndex,
+      });
+      currentIndexRef.current = ((params.dataIndex ?? 0) + 1) % data.length;
+    });
+
+    inst.on("mouseout", () => {
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => loopRef.current?.(), 1000);
+    });
+
+    timerRef.current = setTimeout(() => loopRef.current?.(), 500);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(timerRef.current);
+    };
+  }, []);
+
   const options = useMemo<EChartsOption>(() => {
     return {
       color: [
@@ -32,11 +104,23 @@ export function BuildingPowerChart() {
       ],
       tooltip: {
         trigger: "item",
+        confine: true,
         backgroundColor: "rgba(8, 20, 48, 0.9)",
         borderColor: "#00d4ff",
         borderWidth: 1,
-        textStyle: { color: "#fff" },
-        formatter: "{b}: {c} ({d}%)",
+        padding: [10, 14],
+        textStyle: { color: "#fff", fontSize: 13 },
+        position(point) {
+          return [point[0] + 20, point[1] - 20];
+        },
+        formatter(params) {
+          const d = Array.isArray(params) ? params[0] : params;
+          return [
+            `<span style="font-size:14px;font-weight:bold">${d.marker} ${d.name}</span>`,
+            `算力：<span style="color:#00d4ff;font-size:16px;font-weight:bold">${d.value}</span>`,
+            `占比：<span style="color:#00d4ff">${d.percent}%</span>`,
+          ].join("<br/>");
+        },
       },
       legend: {
         orient: "vertical",
@@ -55,7 +139,10 @@ export function BuildingPowerChart() {
           emphasis: {
             scale: true,
             scaleSize: 10,
-            itemStyle: { shadowBlur: 20, shadowColor: "rgba(99, 102, 241, 0.6)" },
+            itemStyle: {
+              shadowBlur: 20,
+              shadowColor: "rgba(99, 102, 241, 0.6)",
+            },
           },
           data,
         },
@@ -63,5 +150,5 @@ export function BuildingPowerChart() {
     };
   }, []);
 
-  return <EchartsWidget options={options} />;
+  return <EchartsWidget options={options} onInstance={onInstance} />;
 }
