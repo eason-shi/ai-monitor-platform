@@ -1,4 +1,5 @@
-import type { EChartsOption } from "echarts";
+import { useCallback, useEffect, useRef } from "react";
+import type { EChartsOption, ECharts } from "echarts";
 import { EchartsWidget } from "../echarts-widget";
 
 const data = [
@@ -6,7 +7,11 @@ const data = [
   { contury: "美国", value: 85 },
 ];
 
-function buildGaugeOption(name: string, value: number, color: [string, string]): EChartsOption {
+function buildGaugeOption(
+  name: string,
+  value: number,
+  color: [string, string],
+): EChartsOption {
   return {
     series: [
       {
@@ -15,6 +20,9 @@ function buildGaugeOption(name: string, value: number, color: [string, string]):
         endAngle: -40,
         min: 0,
         max: 100,
+        animationDuration: 1500,
+        animationDurationUpdate: 1500,
+        animationEasingUpdate: "cubicOut",
         progress: {
           show: true,
           width: 14,
@@ -22,7 +30,10 @@ function buildGaugeOption(name: string, value: number, color: [string, string]):
           itemStyle: {
             color: {
               type: "linear",
-              x: 0, y: 0, x2: 1, y2: 0,
+              x: 0,
+              y: 0,
+              x2: 1,
+              y2: 0,
               colorStops: [
                 { offset: 0, color: color[0] },
                 { offset: 1, color: color[1] },
@@ -58,17 +69,75 @@ function buildGaugeOption(name: string, value: number, color: [string, string]):
   };
 }
 
-const chinaOption = buildGaugeOption("中国", data[0].value, ["#1e90ff", "#00cfff"]);
-const usaOption = buildGaugeOption("美国", data[1].value, ["#ff6a00", "#ff2d55"]);
+const ANIM_DURATION = 1500;
+const HOLD_DURATION = 2000;
+const RESET_DURATION = 600;
+
+function useGaugeLoop(name: string, target: number, color: [string, string]) {
+  const instanceRef = useRef<ECharts | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const onInstance = useCallback((inst: ECharts | null) => {
+    instanceRef.current = inst;
+  }, []);
+
+  useEffect(() => {
+    function loop() {
+      const chart = instanceRef.current;
+      if (!chart || chart.isDisposed()) return;
+
+      chart.setOption({
+        series: [
+          {
+            animationDurationUpdate: ANIM_DURATION,
+            animationEasingUpdate: "cubicOut",
+            data: [{ value: target, name }],
+          },
+        ],
+      });
+
+      timerRef.current = setTimeout(() => {
+        const chart = instanceRef.current;
+        if (!chart || chart.isDisposed()) return;
+
+        chart.setOption({
+          series: [
+            {
+              animationDurationUpdate: RESET_DURATION,
+              animationEasingUpdate: "linear",
+              data: [{ value: 0, name }],
+            },
+          ],
+        });
+
+        timerRef.current = setTimeout(loop, RESET_DURATION + 300);
+      }, ANIM_DURATION + HOLD_DURATION);
+    }
+
+    const startTimer = setTimeout(loop, 100);
+
+    return () => {
+      clearTimeout(startTimer);
+      clearTimeout(timerRef.current);
+    };
+  }, [name, target]);
+
+  const initialOption = buildGaugeOption(name, 0, color);
+
+  return { initialOption, onInstance };
+}
 
 export function ServiceCompare() {
+  const china = useGaugeLoop("中国", data[0].value, ["#1e90ff", "#00cfff"]);
+  const usa = useGaugeLoop("美国", data[1].value, ["#ff6a00", "#ff2d55"]);
+
   return (
     <div className="flex w-full h-full">
       <div className="flex-1 h-full">
-        <EchartsWidget options={chinaOption} />
+        <EchartsWidget options={china.initialOption} onInstance={china.onInstance} />
       </div>
       <div className="flex-1 h-full">
-        <EchartsWidget options={usaOption} />
+        <EchartsWidget options={usa.initialOption} onInstance={usa.onInstance} />
       </div>
     </div>
   );

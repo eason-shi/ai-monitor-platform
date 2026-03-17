@@ -1,26 +1,15 @@
-import { useState } from "react";
 import { WidgetContainer } from "../widget/widget-container";
 import { BuiltPowerChart } from "./built-power";
 import { OperatorShareChart } from "./operator-share";
 import { ChipShareChart } from "./chip-share";
 import { BuildingPowerChart } from "./building-power";
-import { DistributionMap } from "./distribution-map";
-import { ComputingCenterTip } from "./computing-center-tip";
-import { MapModeIndicator } from "./map-mode-indicator";
+import { DistributionCenter } from "./distribution-center";
 
 import { ChinaComputingPower } from "./china-computing-power";
 import { AmericaComputingPower } from "./america-computing-power";
-import { TotalInfoItem } from "./total-info-item";
-import { ChipCountInfo } from "./chip-count-info";
-import { DescriptionInfo } from "./description-info";
-import { TotalComputingInfo } from "./total-computing-info";
 import { ServiceCompare } from "./service-compare";
 
 export function PowerDistribution() {
-  const [province, setProvince] = useState<string | null>(null);
-  const [tipVisible, setTipVisible] = useState(false);
-  const [mapMode, setMapMode] = useState<"touring" | "free">("touring");
-
   return (
     <div className="w-full h-full flex gap-3 px-3 py-10">
       <div className="w-[22%] flex flex-col gap-3 justify-between">
@@ -49,35 +38,7 @@ export function PowerDistribution() {
         </div>
       </div>
 
-      <div className="w-[56%] relative flex flex-col">
-        <div className="flex-1 relative">
-          <div className="absolute top-0 left-[22%] flex justify-center items-center gap-[180px]  bg-slate-900/90 rounded-lg px-6 py-3 ">
-            <TotalInfoItem title="324个" subTitle="项目总量" />
-            <TotalInfoItem title="1690EFlops" subTitle="智算总量" />
-            <TotalInfoItem title="43255张" subTitle="卡总量" />
-          </div>
-
-          <DistributionMap
-            onProvinceChange={setProvince}
-            onTipVisibleChange={setTipVisible}
-            onModeChange={setMapMode}
-          />
-
-          <MapModeIndicator mode={mapMode} />
-
-          <ComputingCenterTip
-            province={province}
-            visible={tipVisible}
-            mode={mapMode}
-          />
-        </div>
-
-        <div className="h-[280px] flex justify-between">
-          <ChipCountInfo />
-          <DescriptionInfo />
-          <TotalComputingInfo />
-        </div>
-      </div>
+      <DistributionCenter />
 
       <div className="w-[22%] flex flex-col gap-3 justify-between">
         <div className="flex-1 min-h-0">
