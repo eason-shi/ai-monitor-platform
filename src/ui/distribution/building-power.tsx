@@ -110,8 +110,16 @@ export function BuildingPowerChart() {
         borderWidth: 1,
         padding: [10, 14],
         textStyle: { color: "#fff", fontSize: 13 },
-        position(point) {
-          return [point[0] + 20, point[1] - 20];
+        position(point, _params, _dom, _rect, size) {
+          const cx = size.viewSize[0] * 0.35;
+          const cy = size.viewSize[1] * 0.5;
+          const [cw, ch] = size.contentSize;
+          const gap = 15;
+          const dx = point[0] - cx;
+          const dy = point[1] - cy;
+          const x = dx >= 0 ? point[0] + gap : point[0] - cw - gap;
+          const y = dy >= 0 ? point[1] + gap : point[1] - ch - gap;
+          return [x, y];
         },
         formatter(params) {
           const d = Array.isArray(params) ? params[0] : params;
