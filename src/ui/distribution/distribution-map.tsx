@@ -491,7 +491,7 @@ export function DistributionMap({
       const intersects = raycaster.intersectObjects(provinceMeshes, true);
       if (intersects.length > 0) {
         const provinceName = intersects[0].object.userData.provinceName;
-        if (provinceName) {
+        if (provinceName && provinceGroupsMap.has(provinceName)) {
           onProvinceChangeRef.current?.(provinceName);
           onTipVisibleChangeRef.current?.(true);
           const provinceObj = provinceMeshes.find(
