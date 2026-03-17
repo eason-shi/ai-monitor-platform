@@ -41,7 +41,7 @@ export function BuildingPowerChart() {
           type: "pie",
           roseType: "radius",
           radius: ["15%", "75%"],
-          center: ["50%", "55%"],
+          center: ["35%", "50%"],
           label: { show: false },
           labelLine: { show: false },
           data,

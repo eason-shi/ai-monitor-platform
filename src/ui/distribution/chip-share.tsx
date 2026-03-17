@@ -46,13 +46,10 @@ export function ChipShareChart() {
           radius: ["40%", "70%"],
           center: ["35%", "50%"],
           label: {
-            show: true,
-            position: "outside",
-            formatter: "{d}%",
-            color: "#fff",
+            show: false,
           },
           labelLine: {
-            lineStyle: { color: "#fff" },
+            show: false,
           },
           data,
         },
