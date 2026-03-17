@@ -14,6 +14,14 @@ const data = [
 export function ChinaComputingPower() {
   const options = useMemo(() => {
     return {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
+        backgroundColor: "rgba(8, 20, 48, 0.9)",
+        borderColor: "#00d4ff",
+        borderWidth: 1,
+        textStyle: { color: "#fff" },
+      },
       grid: { top: 30, right: 30, bottom: 30, left: 60, containLabel: true },
       yAxis: {
         type: "category",
@@ -35,6 +43,10 @@ export function ChinaComputingPower() {
             color: "#6366f1",
           },
           barWidth: "50%",
+          emphasis: {
+            focus: "series",
+            itemStyle: { opacity: 1 },
+          },
         },
       ],
     };

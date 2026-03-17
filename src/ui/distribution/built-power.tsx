@@ -17,6 +17,7 @@ const data = [
 const options: EChartsOption = {
   tooltip: {
     trigger: "axis",
+    axisPointer: { type: "shadow" },
     backgroundColor: "rgba(8, 20, 48, 0.9)",
     borderColor: "#00d4ff",
     borderWidth: 1,
@@ -52,6 +53,10 @@ const options: EChartsOption = {
       symbolRepeat: false,
       symbolSize: ["100%", "100%"],
       data: data.map((d) => d.value),
+      emphasis: {
+        focus: "series",
+        itemStyle: { opacity: 1 },
+      },
     },
   ],
 };
