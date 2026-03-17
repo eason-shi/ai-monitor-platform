@@ -32,6 +32,10 @@ export function ChipShareChart() {
       ],
       tooltip: {
         trigger: "item",
+        backgroundColor: "rgba(8, 20, 48, 0.9)",
+        borderColor: "#00d4ff",
+        borderWidth: 1,
+        textStyle: { color: "#fff" },
         formatter: "{b}: {c} ({d}%)",
       },
       legend: {
@@ -50,6 +54,11 @@ export function ChipShareChart() {
           },
           labelLine: {
             show: false,
+          },
+          emphasis: {
+            scale: true,
+            scaleSize: 10,
+            itemStyle: { shadowBlur: 20, shadowColor: "rgba(99, 102, 241, 0.6)" },
           },
           data,
         },
