@@ -36,9 +36,9 @@ function Index() {
   const scale = useScale();
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center overflow-hidden">
+    <div className="w-screen h-screen flex items-center justify-center overflow-hidden bg-[#02071E]">
       <div
-        className="bg-[url('/bg.png')] bg-cover bg-center bg-no-repeat w-[3200px] h-[1800px] relative px-14 pb-16 pt-36"
+        className="w-[3200px] h-[1800px] relative px-14 pb-16 pt-36"
         style={{
           transform: `scale(${scale})`,
           transformOrigin: "center center",

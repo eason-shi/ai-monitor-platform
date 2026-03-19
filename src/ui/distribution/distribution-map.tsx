@@ -187,9 +187,9 @@ export function DistributionMap({
     dirLight.position.set(10, -10, 20);
     scene.add(dirLight);
 
-    const fillLight = new THREE.DirectionalLight(0x4488cc, 0.5);
-    fillLight.position.set(-10, 10, 5);
-    scene.add(fillLight);
+    // const fillLight = new THREE.DirectionalLight(0x4488cc, 0.5);
+    // fillLight.position.set(-10, 10, 5);
+    // scene.add(fillLight);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0, -1);
