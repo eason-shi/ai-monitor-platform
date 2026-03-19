@@ -16,7 +16,7 @@ DistributionMap 组件所在的页面背景色为 `#02071E`，但 Three.js canva
 
 ### 修改位置
 
-在 WebGLRenderer 创建后（约第 183 行）添加：
+在 WebGLRenderer 创建后，`renderer.setSize()` 之前添加：
 
 ```typescript
 renderer.setClearColor(0x000000, 0);
@@ -27,6 +27,10 @@ renderer.setClearColor(0x000000, 0);
 - WebGLRenderer 默认 `clearColor` 为黑色且不透明
 - 即使设置 `alpha: true`，也需要将 clearColor 的 alpha 设为 0 才能实现透明
 - `setClearColor(0x000000, 0)` 第二个参数 0 表示完全透明
+
+### 注意事项
+
+- 请勿设置 `scene.background`，否则会覆盖 renderer 的透明设置
 
 ## 验证
 
