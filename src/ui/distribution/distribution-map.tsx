@@ -176,6 +176,7 @@ export function DistributionMap({
       alpha: true,
       antialias: true,
     });
+    renderer.setClearColor(0x000000, 0);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.8;
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -200,21 +201,21 @@ export function DistributionMap({
     controls.maxDistance = 50;
     controls.minPolarAngle = Math.PI * 0.1;
     controls.maxPolarAngle = Math.PI * 0.6;
-    controls.addEventListener("change", () => {
-      console.log("相机参数:", {
-        position: {
-          x: camera.position.x.toFixed(2),
-          y: camera.position.y.toFixed(2),
-          z: camera.position.z.toFixed(2),
-        },
-        target: {
-          x: controls.target.x.toFixed(2),
-          y: controls.target.y.toFixed(2),
-          z: controls.target.z.toFixed(2),
-        },
-        distance: camera.position.distanceTo(controls.target).toFixed(2),
-      });
-    });
+    // controls.addEventListener("change", () => {
+    //   console.log("相机参数:", {
+    //     position: {
+    //       x: camera.position.x.toFixed(2),
+    //       y: camera.position.y.toFixed(2),
+    //       z: camera.position.z.toFixed(2),
+    //     },
+    //     target: {
+    //       x: controls.target.x.toFixed(2),
+    //       y: controls.target.y.toFixed(2),
+    //       z: controls.target.z.toFixed(2),
+    //     },
+    //     distance: camera.position.distanceTo(controls.target).toFixed(2),
+    //   });
+    // });
     controls.update();
 
     const dracoLoader = new DRACOLoader();
@@ -361,6 +362,20 @@ export function DistributionMap({
     Promise.all([loadGlbModel(gltfLoader), loadTextures])
       .then(([gltf, textures]) => {
         markerTextures = textures;
+
+        gltf.scene.remove(gltf.scene.children[5]);
+
+        const baseLayer = gltf.scene.children[6];
+        if (baseLayer) {
+          baseLayer.traverse((child) => {
+            if (child instanceof THREE.Mesh && child.material) {
+              const mat = child.material as THREE.MeshPhysicalMaterial;
+              mat.transparent = true;
+              mat.opacity = 0.25;
+              mat.depthWrite = false;
+            }
+          });
+        }
 
         const model = gltf.scene;
         scene.add(model);
