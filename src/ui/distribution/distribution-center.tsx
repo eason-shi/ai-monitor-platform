@@ -36,7 +36,7 @@ export function DistributionCenter() {
         />
       </div>
 
-      <div className="h-[280px] flex justify-between">
+      <div className="h-[280px] flex justify-between gap-8">
         <ChipCountInfo />
         <DescriptionInfo />
         <TotalComputingInfo />

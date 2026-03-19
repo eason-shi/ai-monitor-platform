@@ -141,7 +141,7 @@ for (const item of realData) {
 
 const DWELL_TIME = 4000;
 const TRANSITION_TIME = 1500;
-const OVERVIEW_POS = { x: 0, y: 24, z: 14 };
+const OVERVIEW_POS = { x: 2.47, y: 33.17, z: 17.73 };
 const OVERVIEW_TARGET = { x: 0, y: 0, z: -1 };
 
 export function DistributionMap({
@@ -169,7 +169,7 @@ export function DistributionMap({
     const { clientWidth: width, clientHeight: height } = container;
 
     const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 200);
-    camera.position.set(0, OVERVIEW_POS.y, OVERVIEW_POS.z);
+    camera.position.set(OVERVIEW_POS.x, OVERVIEW_POS.y, OVERVIEW_POS.z);
     camera.lookAt(0, 0, -1);
 
     const renderer = new THREE.WebGLRenderer({
@@ -187,9 +187,9 @@ export function DistributionMap({
     dirLight.position.set(10, -10, 20);
     scene.add(dirLight);
 
-    // const fillLight = new THREE.DirectionalLight(0x4488cc, 0.5);
-    // fillLight.position.set(-10, 10, 5);
-    // scene.add(fillLight);
+    const fillLight = new THREE.DirectionalLight(0x4488cc, 0.5);
+    fillLight.position.set(-10, 10, 5);
+    scene.add(fillLight);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0, -1);
@@ -200,6 +200,21 @@ export function DistributionMap({
     controls.maxDistance = 50;
     controls.minPolarAngle = Math.PI * 0.1;
     controls.maxPolarAngle = Math.PI * 0.6;
+    controls.addEventListener("change", () => {
+      console.log("相机参数:", {
+        position: {
+          x: camera.position.x.toFixed(2),
+          y: camera.position.y.toFixed(2),
+          z: camera.position.z.toFixed(2),
+        },
+        target: {
+          x: controls.target.x.toFixed(2),
+          y: controls.target.y.toFixed(2),
+          z: controls.target.z.toFixed(2),
+        },
+        distance: camera.position.distanceTo(controls.target).toFixed(2),
+      });
+    });
     controls.update();
 
     const dracoLoader = new DRACOLoader();

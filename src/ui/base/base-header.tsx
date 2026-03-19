@@ -14,7 +14,7 @@ export function BaseHeader() {
     <div className="absolute top-0 left-0 w-full">
       <img src="/header-bg.png" alt="" className="w-full block" />
       <div className="absolute inset-x-0 top-1/8 flex items-center justify-center">
-        <span className="text-[70px] font-bold font-['MiSans'] tracking-[0.3em] text-white ">
+        <span className="text-[60px] font-bold font-['MiSans'] tracking-[0.3em] text-white">
           人工智能产业发展监测平台
         </span>
       </div>
