@@ -40,13 +40,43 @@ export function ChinaComputingPower() {
           type: "bar",
           data: data.map((item) => item.value),
           itemStyle: {
-            color: "#6366f1",
+            color: {
+              type: "linear",
+              x: 1,
+              y: 0,
+              x2: 0,
+              y2: 0,
+              colorStops: [
+                { offset: 0, color: "#00D0CE" },
+                { offset: 1, color: "rgba(0, 91, 90, 0.25)" },
+              ],
+            },
           },
-          barWidth: "50%",
+          barWidth: "30%",
           emphasis: {
             focus: "series",
             itemStyle: { opacity: 1 },
           },
+        },
+        {
+          type: "effectScatter",
+          coordinateSystem: "cartesian2d",
+          data: data.map((item) => [
+            item.value,
+            data.findIndex((d) => d.province === item.province),
+          ]),
+          symbolSize: 8,
+          showEffectOn: "render",
+          rippleEffect: {
+            brushType: "stroke",
+            scale: 4,
+          },
+          itemStyle: {
+            color: "#00D0CE",
+            shadowBlur: 10,
+            shadowColor: "#00D0CE",
+          },
+          zlevel: 1,
         },
       ],
     };
