@@ -21,10 +21,13 @@ export function BuildingPowerChart() {
       </div>
       <div className="w-[340px] h-full flex items-center justify-center">
         <ColorLegend
-          data={data.map((item) => ({
-            name: item.name,
-            value: String(item.value),
-          }))}
+          data={(() => {
+            const total = data.reduce((sum, item) => sum + item.value, 0);
+            return data.map((item) => ({
+              name: item.name,
+              value: `${((item.value / total) * 100).toFixed(2)}%`,
+            }));
+          })()}
         />
       </div>
     </div>
