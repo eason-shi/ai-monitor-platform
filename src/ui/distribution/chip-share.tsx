@@ -1,35 +1,25 @@
 import { useMemo } from "react";
 import type { EChartsOption } from "echarts";
 import { EchartsWidget } from "@/ui/echarts-widget";
+import { ColorLegend, COLORS } from "./color-legend";
 
 const data = [
   { value: 500675, name: "英伟达" },
-  { value: 116428, name: "昇腾" },
   { value: 40680, name: "海光信息" },
   { value: 39334, name: "寒武纪" },
   { value: 38320, name: "燧原" },
-  // { value: 14440, name: "昆仑芯" },
-  // { value: 11293, name: "沐曦" },
-  // { value: 7573, name: "天数智芯" },
-  // { value: 7360, name: "摩尔线程" },
-  // { value: 5573, name: "壁仞" },
+  { value: 14440, name: "昆仑芯" },
+  { value: 11293, name: "沐曦" },
+  { value: 116428, name: "昇腾" },
+  { value: 7573, name: "天数智芯" },
+  { value: 7360, name: "摩尔线程" },
+  { value: 5573, name: "壁仞" },
 ];
 
 export function ChipShareChart() {
   const options = useMemo<EChartsOption>(() => {
     return {
-      color: [
-        "#6366f1",
-        "#8bc34a",
-        "#f59e0b",
-        "#ef4444",
-        "#ec4899",
-        "#3b82f6",
-        "#14b8a6",
-        "#a855f7",
-        "#f97316",
-        "#64748b",
-      ],
+      color: COLORS,
       tooltip: {
         trigger: "item",
         backgroundColor: "rgba(8, 20, 48, 0.9)",
@@ -38,20 +28,12 @@ export function ChipShareChart() {
         textStyle: { color: "#fff" },
         formatter: "{b}: {c} ({d}%)",
       },
-      legend: {
-        orient: "vertical",
-        right: "5%",
-        top: "middle",
-        textStyle: { color: "#fff" },
-      },
       series: [
         {
           type: "pie",
-          padAngle: 5,
-          itemStyle: {
-            borderRadius: 10,
-          },
-          radius: ["40%", "70%"],
+          startAngle: 270,
+          roseType: "radius",
+          radius: ["20%", "100%"],
           center: ["35%", "50%"],
           label: {
             show: false,
@@ -73,5 +55,19 @@ export function ChipShareChart() {
     };
   }, []);
 
-  return <EchartsWidget options={options} />;
+  return (
+    <div className="flex w-full h-full px-3">
+      <div className="flex-1 flex items-center justify-center">
+        <EchartsWidget options={options} />
+      </div>
+      <div className="w-[340px] h-full flex items-center justify-center">
+        <ColorLegend
+          data={data.map((item) => ({
+            name: item.name,
+            value: String(item.value),
+          }))}
+        />
+      </div>
+    </div>
+  );
 }
