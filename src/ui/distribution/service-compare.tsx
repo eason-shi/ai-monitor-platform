@@ -12,6 +12,7 @@ function buildGaugeOption(name: string, value: number): EChartsOption {
     series: [
       {
         type: "gauge",
+        center: ["50%", "60%"],
         axisLine: {
           lineStyle: {
             width: 30,
@@ -52,6 +53,7 @@ function buildGaugeOption(name: string, value: number): EChartsOption {
           valueAnimation: true,
           formatter: "{value}",
           color: "inherit",
+          offsetCenter: [0, "70%"],
         },
         data: [{ value, name }],
       },
