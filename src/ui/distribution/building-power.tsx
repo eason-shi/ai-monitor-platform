@@ -19,13 +19,13 @@ export function BuildingPowerChart() {
       <div className="flex-1 flex items-center justify-center">
         <img src="./building-power.png" />
       </div>
-      <div className="w-[340px] h-full flex items-center justify-center">
+      <div className="w-[300px] h-full flex items-center justify-center">
         <ColorLegend
           data={(() => {
             const total = data.reduce((sum, item) => sum + item.value, 0);
             return data.map((item) => ({
               name: item.name,
-              value: `${((item.value / total) * 100).toFixed(2)}%`,
+              value: `${Math.round((item.value / total) * 100)}%`,
             }));
           })()}
         />

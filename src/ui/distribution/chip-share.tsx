@@ -60,7 +60,7 @@ export function ChipShareChart() {
     const total = data.reduce((sum, item) => sum + item.value, 0);
     return data.map((item) => ({
       name: item.name,
-      value: `${((item.value / total) * 100).toFixed(2)}%`,
+      value: `${Math.round((item.value / total) * 100)}%`,
     }));
   }, []);
 
@@ -80,7 +80,7 @@ export function ChipShareChart() {
           type: "pie",
           startAngle: 240,
           roseType: "area",
-          radius: ["10%", "85%"],
+          radius: ["10%", "100%"],
           center: ["50%", "50%"],
           label: {
             show: false,
@@ -107,7 +107,7 @@ export function ChipShareChart() {
       <div className="flex-1 flex items-center justify-center">
         <EchartsWidget options={options} />
       </div>
-      <div className="w-[340px] h-full flex items-center justify-start">
+      <div className="w-[300px] h-full flex items-center justify-start">
         <ColorLegend data={legendData} />
       </div>
     </div>

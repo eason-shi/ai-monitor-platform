@@ -7,61 +7,51 @@ const data = [
   { contury: "美国", value: 85 },
 ];
 
-function buildGaugeOption(
-  name: string,
-  value: number,
-  color: [string, string],
-): EChartsOption {
+function buildGaugeOption(name: string, value: number): EChartsOption {
   return {
     series: [
       {
         type: "gauge",
-        startAngle: 220,
-        endAngle: -40,
-        min: 0,
-        max: 100,
-        animationDuration: 1500,
-        animationDurationUpdate: 1500,
-        animationEasingUpdate: "cubicOut",
-        progress: {
-          show: true,
-          width: 14,
-          roundCap: true,
-          itemStyle: {
-            color: {
-              type: "linear",
-              x: 0,
-              y: 0,
-              x2: 1,
-              y2: 0,
-              colorStops: [
-                { offset: 0, color: color[0] },
-                { offset: 1, color: color[1] },
-              ],
-            },
+        axisLine: {
+          lineStyle: {
+            width: 30,
+            color: [
+              [0.3, "#67e0e3"],
+              [0.7, "#37a2da"],
+              [1, "#fd666d"],
+            ],
           },
         },
-        axisLine: {
-          roundCap: true,
-          lineStyle: { width: 14, color: [[1, "rgba(255,255,255,0.08)"]] },
+        pointer: {
+          itemStyle: {
+            color: "auto",
+          },
         },
-        axisTick: { show: false },
-        splitLine: { show: false },
-        axisLabel: { show: false },
-        pointer: { show: false },
-        anchor: { show: false },
-        title: {
-          show: true,
-          offsetCenter: [0, "70%"],
-          fontSize: 14,
-          color: "rgba(255,255,255,0.85)",
+        axisTick: {
+          distance: -30,
+          length: 8,
+          lineStyle: {
+            color: "#fff",
+            width: 2,
+          },
+        },
+        splitLine: {
+          distance: -30,
+          length: 30,
+          lineStyle: {
+            color: "#fff",
+            width: 4,
+          },
+        },
+        axisLabel: {
+          color: "inherit",
+          distance: 40,
+          fontSize: 20,
         },
         detail: {
-          offsetCenter: [0, "30%"],
-          fontSize: 28,
-          fontWeight: "bold",
-          color: "#fff",
-          formatter: "{value}%",
+          valueAnimation: true,
+          formatter: "{value}",
+          color: "inherit",
         },
         data: [{ value, name }],
       },
@@ -122,7 +112,7 @@ function useGaugeLoop(name: string, target: number, color: [string, string]) {
     };
   }, [name, target]);
 
-  const initialOption = buildGaugeOption(name, 0, color);
+  const initialOption = buildGaugeOption(name, 0);
 
   return { initialOption, onInstance };
 }
@@ -134,10 +124,16 @@ export function ServiceCompare() {
   return (
     <div className="flex w-full h-full">
       <div className="flex-1 h-full">
-        <EchartsWidget options={china.initialOption} onInstance={china.onInstance} />
+        <EchartsWidget
+          options={china.initialOption}
+          onInstance={china.onInstance}
+        />
       </div>
       <div className="flex-1 h-full">
-        <EchartsWidget options={usa.initialOption} onInstance={usa.onInstance} />
+        <EchartsWidget
+          options={usa.initialOption}
+          onInstance={usa.onInstance}
+        />
       </div>
     </div>
   );

@@ -24,12 +24,12 @@ export function OperatorShareChart() {
           <span className="text-white text-lg">服务商占比</span>
         </div>
       </div>
-      <div className="w-[340px] h-full flex items-center">
+      <div className="w-[300px] h-full flex items-center">
         <ColorLegend
           singleCol
           data={data.map((item) => ({
             name: item.operator,
-            value: `${item.percentage * 100}%`,
+            value: `${Math.round(item.percentage * 100)}%`,
           }))}
         />
       </div>
