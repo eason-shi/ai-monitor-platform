@@ -43,7 +43,7 @@ function SingleChipCountInfo({
           <span className="text-3xl font-bold text-white drop-shadow-[0_0_8px_rgba(0,255,200,0.6)]">
             {count}
           </span>
-          <span className="text-sm text-cyan-300">↑个</span>
+          <span className="text-base text-cyan-300 font-medium">个</span>
         </div>
         {icon}
       </div>
