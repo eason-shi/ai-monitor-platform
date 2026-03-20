@@ -110,9 +110,22 @@ function computeTourView(points: { x: number; y: number; z: number }[]): {
 }
 
 interface DistributionMapProps {
+  mode?: "touring" | "free";
   onProvinceChange?: (name: string) => void;
   onTipVisibleChange?: (visible: boolean) => void;
   onModeChange?: (mode: "touring" | "free") => void;
+}
+
+interface MapInternals {
+  camera: THREE.PerspectiveCamera;
+  controls: OrbitControls;
+  tweenGroup: TWEEN.Group;
+  modeState: { current: "touring" | "free" };
+  getDwellTimer: () => ReturnType<typeof setTimeout> | null;
+  setDwellTimer: (t: ReturnType<typeof setTimeout> | null) => void;
+  transitionToNext: () => void;
+  resetHighlight: () => void;
+  fadeMarkers: (province: string | null) => void;
 }
 
 function lonLatToModel(lon: number, lat: number) {
@@ -145,11 +158,13 @@ const OVERVIEW_POS = { x: 2.47, y: 33.17, z: 17.73 };
 const OVERVIEW_TARGET = { x: 0, y: 0, z: -1 };
 
 export function DistributionMap({
+  mode: modeProp = "touring",
   onProvinceChange,
   onTipVisibleChange,
   onModeChange,
 }: DistributionMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const internalsRef = useRef<MapInternals | null>(null);
 
   const onProvinceChangeRef = useRef(onProvinceChange);
   const onTipVisibleChangeRef = useRef(onTipVisibleChange);
@@ -233,7 +248,7 @@ export function DistributionMap({
     const tweenGroup = new TWEEN.Group();
     let currentTourIndex = 0;
     let dwellTimer: ReturnType<typeof setTimeout> | null = null;
-    let mode: "touring" | "free" = "touring";
+    const modeState = { current: "touring" as "touring" | "free" };
 
     function fadeMarkers(targetProvince: string | null) {
       for (const [prov, sprites] of dataPointsByProvince) {
@@ -254,7 +269,7 @@ export function DistributionMap({
     }
 
     function transitionToNext() {
-      if (mode === "free") return;
+      if (modeState.current === "free") return;
       const nextIndex = currentTourIndex % tourPoints.length;
       const nextPoint = tourPoints[nextIndex];
       currentTourIndex = nextIndex + 1;
@@ -430,6 +445,17 @@ export function DistributionMap({
         }
       })
       .then(() => {
+        internalsRef.current = {
+          camera,
+          controls,
+          tweenGroup,
+          modeState,
+          getDwellTimer: () => dwellTimer,
+          setDwellTimer: (t) => { dwellTimer = t; },
+          transitionToNext,
+          resetHighlight,
+          fadeMarkers,
+        };
         transitionToNext();
       })
       .catch((error) => {
@@ -511,7 +537,7 @@ export function DistributionMap({
     }
 
     const handleClick = (event: MouseEvent) => {
-      if (mode !== "free") return;
+      if (modeState.current !== "free") return;
 
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -534,96 +560,12 @@ export function DistributionMap({
 
     renderer.domElement.addEventListener("click", handleClick);
 
-    const handleMouseEnter = () => {
-      mode = "free";
-      onModeChangeRef.current?.("free");
-      if (dwellTimer) {
-        clearTimeout(dwellTimer);
-        dwellTimer = null;
-      }
-      tweenGroup.removeAll();
-
-      const state = {
-        camX: camera.position.x,
-        camY: camera.position.y,
-        camZ: camera.position.z,
-        targetX: controls.target.x,
-        targetY: controls.target.y,
-        targetZ: controls.target.z,
-      };
-      new TWEEN.Tween(state, tweenGroup)
-        .to(
-          {
-            camX: OVERVIEW_POS.x,
-            camY: OVERVIEW_POS.y,
-            camZ: OVERVIEW_POS.z,
-            targetX: OVERVIEW_TARGET.x,
-            targetY: OVERVIEW_TARGET.y,
-            targetZ: OVERVIEW_TARGET.z,
-          },
-          TRANSITION_TIME,
-        )
-        .easing(TWEEN.Easing.Cubic.InOut)
-        .onUpdate(() => {
-          camera.position.set(state.camX, state.camY, state.camZ);
-          controls.target.set(state.targetX, state.targetY, state.targetZ);
-          controls.update();
-        })
-        .onComplete(() => {
-          fadeMarkers(null);
-        })
-        .start();
-      onTipVisibleChangeRef.current?.(false);
-    };
-
-    const handleMouseLeave = () => {
-      mode = "touring";
-      resetHighlight();
-      onModeChangeRef.current?.("touring");
-      onTipVisibleChangeRef.current?.(false);
-
-      const state = {
-        camX: camera.position.x,
-        camY: camera.position.y,
-        camZ: camera.position.z,
-        targetX: controls.target.x,
-        targetY: controls.target.y,
-        targetZ: controls.target.z,
-      };
-      new TWEEN.Tween(state, tweenGroup)
-        .to(
-          {
-            camX: OVERVIEW_POS.x,
-            camY: OVERVIEW_POS.y,
-            camZ: OVERVIEW_POS.z,
-            targetX: OVERVIEW_TARGET.x,
-            targetY: OVERVIEW_TARGET.y,
-            targetZ: OVERVIEW_TARGET.z,
-          },
-          TRANSITION_TIME,
-        )
-        .easing(TWEEN.Easing.Cubic.InOut)
-        .onUpdate(() => {
-          camera.position.set(state.camX, state.camY, state.camZ);
-          controls.target.set(state.targetX, state.targetY, state.targetZ);
-          controls.update();
-        })
-        .onComplete(() => {
-          transitionToNext();
-        })
-        .start();
-    };
-
-    renderer.domElement.addEventListener("mouseenter", handleMouseEnter);
-    renderer.domElement.addEventListener("mouseleave", handleMouseLeave);
-
     return () => {
+      internalsRef.current = null;
       if (dwellTimer) clearTimeout(dwellTimer);
       resetHighlight();
       tweenGroup.removeAll();
       renderer.domElement.removeEventListener("click", handleClick);
-      renderer.domElement.removeEventListener("mouseenter", handleMouseEnter);
-      renderer.domElement.removeEventListener("mouseleave", handleMouseLeave);
       resizeObserver.disconnect();
       cancelAnimationFrame(animationId);
       controls.dispose();
@@ -648,6 +590,91 @@ export function DistributionMap({
       container.removeChild(renderer.domElement);
     };
   }, []);
+
+  useEffect(() => {
+    const internals = internalsRef.current;
+    if (!internals) return;
+    if (internals.modeState.current === modeProp) return;
+
+    const { camera, controls, tweenGroup } = internals;
+
+    if (modeProp === "free") {
+      internals.modeState.current = "free";
+      const timer = internals.getDwellTimer();
+      if (timer) {
+        clearTimeout(timer);
+        internals.setDwellTimer(null);
+      }
+      tweenGroup.removeAll();
+
+      const state = {
+        camX: camera.position.x,
+        camY: camera.position.y,
+        camZ: camera.position.z,
+        targetX: controls.target.x,
+        targetY: controls.target.y,
+        targetZ: controls.target.z,
+      };
+      new TWEEN.Tween(state, tweenGroup)
+        .to(
+          {
+            camX: OVERVIEW_POS.x,
+            camY: OVERVIEW_POS.y,
+            camZ: OVERVIEW_POS.z,
+            targetX: OVERVIEW_TARGET.x,
+            targetY: OVERVIEW_TARGET.y,
+            targetZ: OVERVIEW_TARGET.z,
+          },
+          TRANSITION_TIME,
+        )
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .onUpdate(() => {
+          camera.position.set(state.camX, state.camY, state.camZ);
+          controls.target.set(state.targetX, state.targetY, state.targetZ);
+          controls.update();
+        })
+        .onComplete(() => {
+          internals.fadeMarkers(null);
+        })
+        .start();
+      onTipVisibleChangeRef.current?.(false);
+    } else {
+      internals.modeState.current = "touring";
+      internals.resetHighlight();
+      onTipVisibleChangeRef.current?.(false);
+
+      const state = {
+        camX: camera.position.x,
+        camY: camera.position.y,
+        camZ: camera.position.z,
+        targetX: controls.target.x,
+        targetY: controls.target.y,
+        targetZ: controls.target.z,
+      };
+      new TWEEN.Tween(state, tweenGroup)
+        .to(
+          {
+            camX: OVERVIEW_POS.x,
+            camY: OVERVIEW_POS.y,
+            camZ: OVERVIEW_POS.z,
+            targetX: OVERVIEW_TARGET.x,
+            targetY: OVERVIEW_TARGET.y,
+            targetZ: OVERVIEW_TARGET.z,
+          },
+          TRANSITION_TIME,
+        )
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .onUpdate(() => {
+          camera.position.set(state.camX, state.camY, state.camZ);
+          controls.target.set(state.targetX, state.targetY, state.targetZ);
+          controls.update();
+        })
+        .onComplete(() => {
+          internals.transitionToNext();
+        })
+        .start();
+    }
+  }, [modeProp]);
 
   return <div ref={containerRef} className="w-full h-full cursor-pointer" />;
 }

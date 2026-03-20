@@ -22,12 +22,16 @@ export function DistributionCenter() {
         </div>
 
         <DistributionMap
+          mode={mapMode}
           onProvinceChange={setProvince}
           onTipVisibleChange={setTipVisible}
           onModeChange={setMapMode}
         />
 
-        <MapModeIndicator mode={mapMode} />
+        <MapModeIndicator
+          mode={mapMode}
+          onToggle={() => setMapMode((prev) => prev === "touring" ? "free" : "touring")}
+        />
 
         <ComputingCenterTip
           province={province}
