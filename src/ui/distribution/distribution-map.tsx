@@ -309,6 +309,7 @@ export function DistributionMap({
         .easing(TWEEN.Easing.Cubic.InOut)
         .onStart(() => {
           onTipVisibleChangeRef.current?.(false);
+          resetHighlight();
           fadeMarkers(null);
         })
         .onUpdate(() => {
@@ -343,6 +344,10 @@ export function DistributionMap({
           onProvinceChangeRef.current?.(nextPoint.name);
           onTipVisibleChangeRef.current?.(true);
           fadeMarkers(nextPoint.name);
+          const provinceObj = provinceMeshes.find(
+            (m) => m.userData.provinceName === nextPoint.name,
+          );
+          if (provinceObj) highlightProvince(provinceObj);
         })
         .onUpdate(() => {
           camera.position.set(
@@ -451,7 +456,9 @@ export function DistributionMap({
           tweenGroup,
           modeState,
           getDwellTimer: () => dwellTimer,
-          setDwellTimer: (t) => { dwellTimer = t; },
+          setDwellTimer: (t) => {
+            dwellTimer = t;
+          },
           transitionToNext,
           resetHighlight,
           fadeMarkers,
@@ -502,6 +509,12 @@ export function DistributionMap({
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+    let mouseDownPos = { x: 0, y: 0 };
+
+    const handleMouseDown = (event: MouseEvent) => {
+      mouseDownPos = { x: event.clientX, y: event.clientY };
+    };
+    renderer.domElement.addEventListener("mousedown", handleMouseDown);
 
     let highlightedMeshes: {
       mesh: THREE.Mesh;
@@ -538,6 +551,9 @@ export function DistributionMap({
 
     const handleClick = (event: MouseEvent) => {
       if (modeState.current !== "free") return;
+      const dx = event.clientX - mouseDownPos.x;
+      const dy = event.clientY - mouseDownPos.y;
+      if (dx * dx + dy * dy > 25) return;
 
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -565,6 +581,7 @@ export function DistributionMap({
       if (dwellTimer) clearTimeout(dwellTimer);
       resetHighlight();
       tweenGroup.removeAll();
+      renderer.domElement.removeEventListener("mousedown", handleMouseDown);
       renderer.domElement.removeEventListener("click", handleClick);
       resizeObserver.disconnect();
       cancelAnimationFrame(animationId);
