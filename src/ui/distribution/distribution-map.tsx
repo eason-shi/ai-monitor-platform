@@ -394,7 +394,7 @@ export function DistributionMap({
           });
         }
 
-        const MARKER_SIZE = 0.08;
+        const MARKER_SIZE = 0.05;
         for (const item of realData) {
           const pos = lonLatToModel(
             parseFloat(item.longitude),
