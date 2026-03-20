@@ -30,9 +30,18 @@ interface TourPoint {
 }
 
 const MIN_SPREAD = 4;
-const CAM_ELEVATION = Math.PI * 0.22;
 const FOV_DEG = 55;
 const FOV_RAD = (FOV_DEG * Math.PI) / 180;
+const OVERVIEW_POS = { x: 2.47, y: 33.17, z: 17.73 };
+const OVERVIEW_TARGET = { x: 0, y: 0, z: -1 };
+
+const OVERVIEW_DIR = (() => {
+  const dx = OVERVIEW_POS.x - OVERVIEW_TARGET.x;
+  const dy = OVERVIEW_POS.y - OVERVIEW_TARGET.y;
+  const dz = OVERVIEW_POS.z - OVERVIEW_TARGET.z;
+  const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  return { x: dx / len, y: dy / len, z: dz / len };
+})();
 
 function computeTourView(points: { x: number; y: number; z: number }[]): {
   target: THREE.Vector3;
@@ -67,44 +76,9 @@ function computeTourView(points: { x: number; y: number; z: number }[]): {
   const rawDist = spread / (2 * Math.tan(FOV_RAD / 2)) + 2;
   const distance = Math.max(6, Math.min(20, rawDist));
 
-  let azimuth = 0;
-
-  if (n >= 3) {
-    let covXX = 0,
-      covXZ = 0,
-      covZZ = 0;
-    for (const p of points) {
-      const dx = p.x - cx,
-        dz = p.z - cz;
-      covXX += dx * dx;
-      covXZ += dx * dz;
-      covZZ += dz * dz;
-    }
-    covXX /= n;
-    covXZ /= n;
-    covZZ /= n;
-
-    const trace = covXX + covZZ;
-    const det = covXX * covZZ - covXZ * covXZ;
-    const disc = Math.sqrt(Math.max(0, (trace * trace) / 4 - det));
-    const lambda2 = trace / 2 - disc;
-
-    const evX = covXZ;
-    const evZ = lambda2 - covXX;
-    const len = Math.sqrt(evX * evX + evZ * evZ);
-    if (len > 1e-6) {
-      azimuth = Math.atan2(evZ, evX);
-      if (Math.cos(azimuth) < 0) azimuth += Math.PI;
-      if (azimuth > Math.PI) azimuth -= 2 * Math.PI;
-      azimuth = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, azimuth));
-    }
-  }
-
-  const camX =
-    target.x + distance * Math.cos(CAM_ELEVATION) * Math.sin(azimuth);
-  const camY = target.y + distance * Math.sin(CAM_ELEVATION);
-  const camZ =
-    target.z + distance * Math.cos(CAM_ELEVATION) * Math.cos(azimuth);
+  const camX = target.x + OVERVIEW_DIR.x * distance;
+  const camY = target.y + OVERVIEW_DIR.y * distance;
+  const camZ = target.z + OVERVIEW_DIR.z * distance;
 
   return { target, cameraPosition: new THREE.Vector3(camX, camY, camZ) };
 }
@@ -154,8 +128,6 @@ for (const item of realData) {
 
 const DWELL_TIME = 4000;
 const TRANSITION_TIME = 1500;
-const OVERVIEW_POS = { x: 2.47, y: 33.17, z: 17.73 };
-const OVERVIEW_TARGET = { x: 0, y: 0, z: -1 };
 
 export function DistributionMap({
   mode: modeProp = "touring",
