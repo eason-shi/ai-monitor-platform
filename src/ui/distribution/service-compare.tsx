@@ -45,9 +45,9 @@ function buildGaugeOption(name: string, value: number): EChartsOption {
           },
         },
         axisLabel: {
-          color: "inherit",
           distance: 40,
           fontSize: 20,
+          color: "#fff",
         },
         title: {
           color: "#fff",
