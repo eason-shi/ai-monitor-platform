@@ -47,6 +47,12 @@ function computeTourView(points: { x: number; y: number; z: number }[]): {
   target: THREE.Vector3;
   cameraPosition: THREE.Vector3;
 } {
+  const PADDING = 1.5;
+  const DIRECTION_BLEND = 0.25;
+  const MAX_OFFSET = 20;
+  const MIN_DIST = 8;
+  const MAX_DIST = 32;
+
   const n = points.length;
   let cx = 0,
     cy = 0,
@@ -61,6 +67,28 @@ function computeTourView(points: { x: number; y: number; z: number }[]): {
   cz /= n;
   const target = new THREE.Vector3(cx, cy + 2, cz);
 
+  const offsetX = cx - OVERVIEW_TARGET.x;
+  const offsetZ = cz - OVERVIEW_TARGET.z;
+  const offsetLen = Math.sqrt(offsetX * offsetX + offsetZ * offsetZ);
+  const blend = DIRECTION_BLEND * Math.min(offsetLen / MAX_OFFSET, 1);
+
+  let offDirX = 0,
+    offDirZ = 0;
+  if (offsetLen > 0.01) {
+    offDirX = offsetX / offsetLen;
+    offDirZ = offsetZ / offsetLen;
+  }
+
+  const rawDirX = OVERVIEW_DIR.x * (1 - blend) + offDirX * blend;
+  const rawDirY = OVERVIEW_DIR.y;
+  const rawDirZ = OVERVIEW_DIR.z * (1 - blend) + offDirZ * blend;
+  const dirLen = Math.sqrt(
+    rawDirX * rawDirX + rawDirY * rawDirY + rawDirZ * rawDirZ,
+  );
+  const finalDirX = rawDirX / dirLen;
+  const finalDirY = rawDirY / dirLen;
+  const finalDirZ = rawDirZ / dirLen;
+
   let minX = Infinity,
     maxX = -Infinity,
     minZ = Infinity,
@@ -73,12 +101,12 @@ function computeTourView(points: { x: number; y: number; z: number }[]): {
   }
   const diagLen = Math.sqrt((maxX - minX) ** 2 + (maxZ - minZ) ** 2);
   const spread = Math.max(diagLen, MIN_SPREAD);
-  const rawDist = spread / (2 * Math.tan(FOV_RAD / 2)) + 2;
-  const distance = Math.max(6, Math.min(20, rawDist));
+  const rawDist = (spread * PADDING) / (2 * Math.tan(FOV_RAD / 2)) + 2;
+  const distance = Math.max(MIN_DIST, Math.min(MAX_DIST, rawDist));
 
-  const camX = target.x + OVERVIEW_DIR.x * distance;
-  const camY = target.y + OVERVIEW_DIR.y * distance;
-  const camZ = target.z + OVERVIEW_DIR.z * distance;
+  const camX = target.x + finalDirX * distance;
+  const camY = target.y + finalDirY * distance;
+  const camZ = target.z + finalDirZ * distance;
 
   return { target, cameraPosition: new THREE.Vector3(camX, camY, camZ) };
 }
@@ -509,6 +537,31 @@ export function DistributionMap({
         const mat = (child.material as THREE.MeshStandardMaterial).clone();
         child.material = mat;
         mat.emissive = new THREE.Color(0x00ceff);
+
+        mat.onBeforeCompile = (shader) => {
+          shader.vertexShader = shader.vertexShader.replace(
+            "#include <common>",
+            `#include <common>
+             varying vec3 vWorldNormal;`,
+          );
+          shader.vertexShader = shader.vertexShader.replace(
+            "#include <worldpos_vertex>",
+            `#include <worldpos_vertex>
+             vWorldNormal = normalize(mat3(modelMatrix) * normal);`,
+          );
+          shader.fragmentShader = shader.fragmentShader.replace(
+            "#include <common>",
+            `#include <common>
+             varying vec3 vWorldNormal;`,
+          );
+          shader.fragmentShader = shader.fragmentShader.replace(
+            "#include <emissivemap_fragment>",
+            `#include <emissivemap_fragment>
+             float topFace = smoothstep(0.5, 0.8, vWorldNormal.y);
+             totalEmissiveRadiance *= topFace;`,
+          );
+        };
+
         const state = { intensity: 0 };
         const fadeIn = new TWEEN.Tween(state, tweenGroup)
           .to({ intensity: 0.6 }, 150)
