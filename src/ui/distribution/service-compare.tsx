@@ -17,9 +17,8 @@ function buildGaugeOption(name: string, value: number): EChartsOption {
           lineStyle: {
             width: 30,
             color: [
-              [0.3, "#67e0e3"],
-              [0.7, "#37a2da"],
-              [1, "#fd666d"],
+              [0.8, "#008AFF"],
+              [1, "#25CEAA"],
             ],
           },
         },
