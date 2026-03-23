@@ -536,7 +536,7 @@ export function DistributionMap({
         const originalMaterial = child.material;
         const mat = (child.material as THREE.MeshStandardMaterial).clone();
         child.material = mat;
-        mat.emissive = new THREE.Color(0x00ceff);
+        mat.emissive = new THREE.Color(0x0099cc);
 
         mat.onBeforeCompile = (shader) => {
           shader.vertexShader = shader.vertexShader.replace(
