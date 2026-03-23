@@ -13,6 +13,7 @@ function buildGaugeOption(name: string, value: number): EChartsOption {
       {
         type: "gauge",
         center: ["50%", "60%"],
+        splitNumber: 5,
         axisLine: {
           lineStyle: {
             width: 30,
@@ -32,7 +33,7 @@ function buildGaugeOption(name: string, value: number): EChartsOption {
           length: 8,
           lineStyle: {
             color: "#fff",
-            width: 2,
+            width: 0,
           },
         },
         splitLine: {
@@ -40,13 +41,16 @@ function buildGaugeOption(name: string, value: number): EChartsOption {
           length: 30,
           lineStyle: {
             color: "#fff",
-            width: 4,
+            width: 0,
           },
         },
         axisLabel: {
           color: "inherit",
           distance: 40,
           fontSize: 20,
+        },
+        title: {
+          color: "#fff",
         },
         detail: {
           valueAnimation: true,

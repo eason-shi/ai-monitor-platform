@@ -26,7 +26,7 @@ export function ModuleItem({
       onClick={onClick}
       className={`
         relative flex items-center justify-center
-        w-[288px] h-20
+        w-[310px] h-20
         bg-cover bg-no-repeat bg-center
         select-none cursor-pointer
         ${className ?? ""}
