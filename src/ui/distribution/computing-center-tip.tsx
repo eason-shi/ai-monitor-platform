@@ -62,7 +62,7 @@ export function ComputingCenterTip({
 
   return (
     <div
-      className="absolute left-[58%] top-[55%] flex flex-col z-10 rounded-lg overflow-visible w-max pointer-events-none"
+      className="absolute left-[58%] top-[55%] flex flex-col z-10 rounded-lg overflow-visible w-max pointer-events-none bg-[#0427336E] backdrop-blur-[39.3px]"
       data-phase={phase}
       onAnimationEnd={handleAnimationEnd}
       style={{
@@ -74,7 +74,7 @@ export function ComputingCenterTip({
     >
       <span className="cct-border" />
 
-      <div className="cct-header items-center justify-between bg-linear-to-r from-[#0058A2] from-[1.65%] to-[rgba(0,61,89,0)] to-[96.88%] px-5 py-6 shrink-0 rounded-t-lg">
+      <div className="cct-header items-center justify-between px-5 py-6 shrink-0 rounded-t-lg border-b border-[#6C95E6]">
         <div className="flex items-center gap-x-4">
           <img src="/widget-title-icon.svg" />
           <span className="text-2xl text-white italic">超大规模智算集群</span>
@@ -82,7 +82,7 @@ export function ComputingCenterTip({
         </div>
       </div>
 
-      <div className="cct-content bg-[linear-gradient(99.85deg,rgba(0,206,255,0.049)_-5.21%,rgba(11,0,255,0)_102.37%)] backdrop-blur-[12.73px] p-6 rounded-b-lg">
+      <div className="cct-content p-6 rounded-b-lg">
         <div
           className={`grid ${cached.clusters.length >= 2 ? "grid-cols-2" : "grid-cols-1"} gap-4`}
         >
