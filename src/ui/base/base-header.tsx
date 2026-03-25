@@ -22,12 +22,12 @@ export function BaseHeader() {
         <ModuleItem
           itemName="算力底座"
           active={isActive("/")}
-          onClick={() => navigate({ to: "/" })}
+          // onClick={() => navigate({ to: "/" })}
         />
         <ModuleItem
           itemName="AI数据"
           active={isActive("/data")}
-          onClick={() => navigate({ to: "/data" })}
+          // onClick={() => navigate({ to: "/data" })}
         />
       </div>
       <div className="absolute right-[6%] top-1/4 -translate-y-1/2 flex gap-4">
@@ -35,13 +35,13 @@ export function BaseHeader() {
           itemName="大模型"
           active={isActive("/model")}
           isRight={true}
-          onClick={() => navigate({ to: "/model" })}
+          // onClick={() => navigate({ to: "/model" })}
         />
         <ModuleItem
           itemName="知识图谱"
           active={isActive("/graph")}
           isRight={true}
-          onClick={() => navigate({ to: "/graph" })}
+          // onClick={() => navigate({ to: "/graph" })}
         />
       </div>
     </div>
