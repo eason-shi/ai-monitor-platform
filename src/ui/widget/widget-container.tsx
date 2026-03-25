@@ -12,7 +12,7 @@ export function WidgetContainer(
       <div className="flex items-center gap-x-5 h-11 bg-linear-to-r from-[#0058A2] from-[1.65%] to-[rgba(0,61,89,0)] to-[96.88%]">
         <img src="/widget-title-icon.svg" />
         <span
-          className="text-xl text-white italic"
+          className="text-xl text-white italic font-bold"
           style={{
             fontFamily: '"MiSans", sans-serif',
             letterSpacing: "2.74px",

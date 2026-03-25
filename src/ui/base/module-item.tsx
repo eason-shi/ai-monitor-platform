@@ -26,7 +26,7 @@ export function ModuleItem({
       onClick={onClick}
       className={`
         relative flex items-center justify-center
-        w-[310px] h-20
+        w-[310px] h-20 px-4
         bg-cover bg-no-repeat bg-center
         select-none cursor-pointer
         ${className ?? ""}
@@ -37,8 +37,8 @@ export function ModuleItem({
     >
       <span
         className={`
-          font-['MiSans'] font-normal text-[30px] leading-10
-          text-center bg-clip-text text-transparent
+          font-['MiSans'] font-bold italic text-[30px] leading-10
+          text-center bg-clip-text text-transparent px-1
         `}
         style={{
           backgroundImage: active
