@@ -7,8 +7,13 @@ import {
 
 export function ChipCountInfo() {
   return (
-    <div className="w-[700px] h-full bg-[#00327D2E] flex justify-evenly items-center">
-      <SingleChipCountInfo
+    <div className="relative w-[700px] h-full bg-[#00327D2E] flex justify-evenly items-center">
+      <img
+        src="/chip-count.gif"
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      {/* <SingleChipCountInfo
         icon={<NvChipCountIcon />}
         count="2000"
         type="全NV卡"
@@ -22,7 +27,7 @@ export function ChipCountInfo() {
         icon={<MixedChipCountIcon />}
         count="800"
         type="NV+国产"
-      />
+      /> */}
     </div>
   );
 }
